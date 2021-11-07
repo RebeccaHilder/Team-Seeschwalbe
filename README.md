@@ -33,7 +33,3 @@ data <- prepData(dat_700, type="UTM")
 mod <- fitHMM(data,nbStates=2, stepPar0 = c(0.1,0.25, 0.05, 0.05), anglePar0 = c(0,0,1,1),verbose=1, angleDist="vm",stationary=T)
 plot(mod)
 mod
-# ohne turning angle (läuft viel schneller durch!!)
-mod2 <- fitHMM(data,nbStates=2, stepPar0 = c(0.1,0.25, 0.05, 0.05), angleDist="none", verbose=1,stationary=T)
-plot(mod2)
-mod2
