@@ -37,3 +37,50 @@ mod
 mod2 <- fitHMM(data,nbStates=2, stepPar0 = c(0.1,0.25, 0.05, 0.05), angleDist="none", verbose=1,stationary=T)
 plot(mod2)
 mod2
+
+
+### Modell manuell fitten
+mllk <- function(theta.star, x, N){
+  Gamma <- diag(N) #identity matrix 
+  Gamma[!Gamma] <- exp(theta.star[1:2]) #turn zeros in matrix (off-diagonal entries) into exponentials of theta-stars
+  Gamma <- Gamma/rowSums(Gamma) #devide by row sums so that entries of a row sum to 1 (transformation is inverse logit link)
+  delta <- solve(t(diag(N)-Gamma+1),rep(1,N)) #stationary distribution erstellen
+  mu.step <- exp(theta.star[3:4]) #Mittelwert
+  sigma <- exp(theta.star[5:6]) #Varianz
+  allprobs <- matrix(1,dim(x)[1],N)
+  ind <- which(!is.na(x$step)) # indices of non-missing step lengths
+    allprobs[ind,] <- cbind(dgamma(x$step[ind],shape=mu.step[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.step[1]),
+                            dgamma(x$step[ind],shape=mu.step[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.step[2]))
+  foo <- delta%*%diag(allprobs[1,])
+  l <- log(sum(foo))
+  phi <- foo/sum(foo)
+  for (t in 2:dim(x)[1]){
+    foo <- phi%*%Gamma%*%diag(allprobs[t,])
+    l <- l+log(sum(foo))
+    phi <- foo/sum(foo)
+  }
+  return(-l)
+}
+
+N=2
+
+# finding starting values
+hist(data$step, breaks=20, main = "Histogram of the step lengths", xlab = "step lengths", xlim=c(0,0.45))
+# starting values
+theta.star <- c(rep(-2,(N-1)*N),log(c(0.15,0.25)),log(c(0.05,0.03)))
+# numerical maximization 
+mod.manuell <- nlm(mllk,theta.star,x=data,N=N,print.level=1,iterlim=500)
+theta.star.mle = mod.manuell$estimate
+
+# back-transformation
+Gamma <- diag(N)
+Gamma[!Gamma] <- exp(theta.star.mle[1:((N-1)*N)])
+Gamma <- Gamma/rowSums(Gamma)
+delta <- solve(t(diag(N)-Gamma+1),rep(1,N))
+mu.step <- exp(theta.star.mle[(N-1)*N+1:N])
+sigma <- exp(theta.star.mle[(N-1)*N+(N+1):(2*N)])
+
+round(Gamma, 4) #Matrix auf 4 Nachkommastellen gerundet
+mu.step
+sigma
+delta
