@@ -133,3 +133,5 @@ mu.step_slick <- exp(mod_slick$estimate[1:2])
 sigma_slick <- exp(mod_slick$estimate[3:4])
 mu.step_slick
 sigma_slick
+
+####Modellüberprüfung
