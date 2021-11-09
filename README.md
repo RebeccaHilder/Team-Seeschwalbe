@@ -84,3 +84,52 @@ round(Gamma, 4) #Matrix auf 4 Nachkommastellen gerundet
 mu.step
 sigma
 delta
+
+
+#### with covariates ####
+### incorporate covariate slick
+mllk.slick <- function(theta.star,x){
+  mu.step <- exp(theta.star[1:2])
+  sigma <- exp(theta.star[3:4])
+  delta <- c(plogis(theta.star[5]),1-plogis(theta.star[5]))
+  beta <- cbind(theta.star[6:7],theta.star[8:9])
+  allprobs <- matrix(1,dim(x)[1],2)
+  ind <- which(!is.na(x$step)) # indices of non-missing step lengths
+  allprobs[ind,] <- cbind(dgamma(x$step[ind],shape=mu.step[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.step[1]),
+                          dgamma(x$step[ind],shape=mu.step[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.step[2]))
+  #for (j in 1:2){
+  #  allprobs[,j] <- dgamma(x$step,shape=mu.step[j]^2/sigma[j]^2,scale=sigma[j]^2/mu.step[j])
+  #}
+  foo <- delta%*%diag(allprobs[1,])
+  l <- log(sum(foo))
+  phi <- foo/sum(foo)
+  for (t in 2:dim(x)[1]){
+    eta <- beta[,1]+beta[,2]*x[t,"slick"]
+    Gamma <- diag(2)
+    # tpm has to be updated after every new estimation of the beta values
+    Gamma[!Gamma] <- exp(eta) # assign values to the off-diagonal entries of the Gamma-matrix
+    Gamma <- Gamma/rowSums(Gamma)
+    foo <- phi%*%Gamma%*%diag(allprobs[t,])
+    l <- l+log(sum(foo))
+    phi <- foo/sum(foo)
+  }
+return(-l)
+}
+
+N=2
+
+#starting values
+delta0 <- 0.5
+# choose beta0 such that the diagonal elements of the resulting Gamma matrix will be highest (similar to starting values for gamma_ij)
+beta0 <- rep(-2,N*(N-1))
+# here my initial guess is that our covariate has no effect on the state process and hence I set all beta1 values to zero
+beta1 <- rep(0,N*(N-1))
+
+theta.star <- c(log(mu.step),log(sigma),qlogis(delta0), beta0, beta1)
+mod_slick <- nlm(mllk.slick,theta.star,x=data,print.level=2)
+
+# natural parameters
+mu.step_slick <- exp(mod_slick$estimate[1:2])
+sigma_slick <- exp(mod_slick$estimate[3:4])
+mu.step_slick
+sigma_slick
