@@ -142,3 +142,11 @@ mu.step_slick
 sigma_slick
 
 ### Modellüberprüfung
+colours <- c("#E69F00", "#56B4E9", "#009E73", "black")
+curve(delta3[1]*dgamma(x,shape=mu.step3[1]^2/sigma.step3[1]^2,scale=sigma.step3[1]^2/mu.step3[1])
+      +delta3[2]*dgamma(x,shape=mu.step3[2]^2/sigma.step3[2]^2,scale=sigma.step3[2]^2/mu.step3[2])
+      +delta3[3]*dgamma(x,shape=mu.step3[3]^2/sigma.step3[3]^2,scale=sigma.step3[3]^2/mu.step3[3]),
+      add=TRUE,col="black", lwd=2)
+legend("topright", inset = c(0,0), legend= c("State 1","State 2","State 3","Sum of densities"), pch = 16, col=colours)
+      
+      
