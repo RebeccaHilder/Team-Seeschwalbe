@@ -85,6 +85,13 @@ mu.step
 sigma
 delta
 
+## grafische Darstellung
+# State dependent distributions
+hist(data$step,probability=TRUE,breaks=100,col="light grey",xlab="step length",main="State-dependent distributions", xlim= c(0,0.45))
+curve(delta[1]*dgamma(x,shape=mu.step[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.step[1]),add=TRUE,col=2, lwd=2)
+curve(delta[2]*dgamma(x,shape=mu.step[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.step[2]),add=TRUE,col=3, lwd=2)
+#marginal distribution
+curve(delta[1]*dgamma(x,shape=mu.step[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.step[1])+delta[2]*dgamma(x,shape=mu.step[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.step[2]),add=TRUE,col="black", lwd=2)
 
 #### with covariates ####
 ### incorporate covariate slick
