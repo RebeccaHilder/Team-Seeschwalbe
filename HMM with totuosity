@@ -118,6 +118,7 @@ viterbi <- function(x,mu.tort,sigma,Gamma,delta){
 }
 
 #### Global decoding für jedes Tier einzeln, mit festgesetzten Limits
+#pdf("2-States HMM tortuosity decoding.pdf", width=8.27, height=11.69) #speichert alle Plots direkt im Ordner des Datensatzes (Zusatz von Ina)
 par(mfrow=c(2,1))
 colors <- c("#E69F00", "#56B4E9")
 for(i in unique(data$ID)){
