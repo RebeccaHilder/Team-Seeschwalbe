@@ -88,6 +88,7 @@ delta
 
 #### 2-States HMM with speed grafische Darstellung ####
 # State dependent distributions
+#pdf("2-States HMM Speed.pdf", width=11.69, height=8.27) #speichert alle Plots direkt im Ordner des Datensatzes
 hist(data$step,probability=TRUE,breaks=100,col="light grey",xlab="step length",main="State-dependent distributions", xlim= c(0,0.45))
 curve(delta[1]*dgamma(x,shape=mu.step[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.step[1]),add=TRUE,col="#E69F00", lwd=2)
 curve(delta[2]*dgamma(x,shape=mu.step[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.step[2]),add=TRUE,col="#56B4E9", lwd=2)
@@ -95,7 +96,7 @@ curve(delta[2]*dgamma(x,shape=mu.step[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.step[2
 curve(delta[1]*dgamma(x,shape=mu.step[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.step[1])+delta[2]*dgamma(x,shape=mu.step[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.step[2]),add=TRUE,col="black", lwd=2, lty=2)
 colours <- c("#E69F00", "#56B4E9", "black")
 legend("topleft", inset = c(0,0), legend= c("State 1","State 2","Sum of densities"), pch = 16, col=colours)
-
+#dev.off()
 
 #### 2-States HMM with speed global decoding ####
 
@@ -121,7 +122,19 @@ viterbi <- function(x,mu.step,sigma,Gamma,delta){
 }
 
 
-#### Global decoding für jedes Tier einzeln
+#### Global decoding für jedes Tier einzeln, mit festgesetzten Limits
+#pdf("2-States HMM Speed decoding.pdf", width=8.27, height=11.69) #speichert alle Plots direkt im Ordner des Datensatzes
+par(mfrow=c(2,1))
+colors <- c("#E69F00", "#56B4E9")
+for(i in unique(data$ID)){
+  x=data$step[which(data$ID==i)]
+  vitstates2 <- viterbi(x,mu.step,sigma,Gamma,delta)
+  plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main=i,xlab="x",ylab="y",col=colors[vitstates2],type="p", pch=20)
+  plot(x,xlab="time",ylab="step",col=colors[vitstates2],type="p", pch=20, xlim=c(0,3000), ylim=c(0,0.5))
+}
+dev.off()
+
+#### Global decoding für jedes Tier einzeln (umständliche Version!)
 
 #Namen der Tiere
 data_Tabelle_Tiere <- data.frame(table(dat$ID))
@@ -200,6 +213,7 @@ delta3
 
 #### 3-States HMM with speed grafische Darstellung ####
 # State dependent distributions
+#pdf("3-States HMM Speed.pdf", width=11.69, height=8.27) #speichert alle Plots direkt im Ordner des Datensatzes
 hist(data$step, probability = TRUE, breaks=100, main = "Histogram of the step lengths",
      xlab = "step lengths", xlim=c(0,0.45))
 curve(delta3[1]*dgamma(x,shape=mu.step3[1]^2/sigma.step3[1]^2,scale=sigma.step3[1]^2/mu.step3[1]),add=TRUE,col="#E69F00", lwd=2) 
@@ -212,6 +226,7 @@ curve(delta3[1]*dgamma(x,shape=mu.step3[1]^2/sigma.step3[1]^2,scale=sigma.step3[
       +delta3[3]*dgamma(x,shape=mu.step3[3]^2/sigma.step3[3]^2,scale=sigma.step3[3]^2/mu.step3[3]),
       add=TRUE,col="black", lwd=2, lty=2)
 legend("topleft", inset = c(0,0), legend= c("State 1","State 2","State 3","Sum of densities"), pch = 16, col=colours)
+#dev.off()
 
 
 #### 3-States HMM with speed global decoding ####
@@ -237,8 +252,20 @@ viterbi3 <- function(x,mu.step3,sigma.step3,Gamma3,delta3){
   iv
 }
 
-#### Global decoding für jedes Tier einzeln
+#### Global decoding für jedes Tier einzeln, mit festgesetzten Limits
+pdf("3-States HMM Speed decoding.pdf", width=8.27, height=11.69) #speichert alle Plots direkt im Ordner des Datensatzes
+par(mfrow=c(2,1))
+colors <- c("#E69F00", "#56B4E9","#009E73")
+for(i in unique(data$ID)){
+  x=data$step[which(data$ID==i)]
+  vitstates3 <- viterbi3(x,mu.step3,sigma.step3,Gamma3,delta3)
+  plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main=i,xlab="x",ylab="y",col=colors[vitstates3],type="p", pch=20)
+  plot(x,xlab="time",ylab="step",col=colors[vitstates3],type="p", pch=20, xlim=c(0,3000), ylim=c(0,0.5))
+}
+dev.off()
 
+
+#### Global decoding für jedes Tier einzeln (umständliche Version!)
 #Namen der Tiere
 data_Tabelle_Tiere <- data.frame(table(dat$ID))
 data_Anzahl_Tiere_groß <- data_Tabelle_Tiere[data_Tabelle_Tiere$Freq > 700,]
