@@ -214,8 +214,8 @@ delta3
 #### 3-States HMM with speed grafische Darstellung ####
 # State dependent distributions
 #pdf("3-States HMM Speed.pdf", width=11.69, height=8.27) #speichert alle Plots direkt im Ordner des Datensatzes
-hist(data$step, probability = TRUE, breaks=100, main = "Histogram of the step lengths",
-     xlab = "step lengths", xlim=c(0,0.45))
+hist(data$step, probability = TRUE, breaks=50, main = "Histogram of the step lengths",
+     xlab = "step lengths", xlim=c(0,0.45), ylim = c(0,10) )
 curve(delta3[1]*dgamma(x,shape=mu.step3[1]^2/sigma.step3[1]^2,scale=sigma.step3[1]^2/mu.step3[1]),add=TRUE,col="#E69F00", lwd=2) 
 curve(delta3[2]*dgamma(x,shape=mu.step3[2]^2/sigma.step3[2]^2,scale=sigma.step3[2]^2/mu.step3[2]),add=TRUE,col="#56B4E9", lwd=2)
 curve(delta3[3]*dgamma(x,shape=mu.step3[3]^2/sigma.step3[3]^2,scale=sigma.step3[3]^2/mu.step3[3]),add=TRUE,col="#009E73", lwd=2)
@@ -225,7 +225,7 @@ curve(delta3[1]*dgamma(x,shape=mu.step3[1]^2/sigma.step3[1]^2,scale=sigma.step3[
       +delta3[2]*dgamma(x,shape=mu.step3[2]^2/sigma.step3[2]^2,scale=sigma.step3[2]^2/mu.step3[2])
       +delta3[3]*dgamma(x,shape=mu.step3[3]^2/sigma.step3[3]^2,scale=sigma.step3[3]^2/mu.step3[3]),
       add=TRUE,col="black", lwd=2, lty=2)
-legend("topleft", inset = c(0,0), legend= c("State 1","State 2","State 3","Sum of densities"), pch = 16, col=colours)
+legend("topleft", inset = c(0,0), legend= c("State 1","State 2","State 3","Marginal distribution"), pch = 16, col=colours)
 #dev.off()
 
 
