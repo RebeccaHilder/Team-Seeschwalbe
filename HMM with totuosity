@@ -117,7 +117,7 @@ viterbi <- function(x,mu.tort,sigma,Gamma,delta){
   iv
 }
 
-#### Global decoding für jedes Tier einzeln
+#### Global decoding für jedes Tier einzeln, mit festgesetzten Limits
 par(mfrow=c(2,1))
 colors <- c("#E69F00", "#56B4E9")
 for(i in unique(data$ID)){
