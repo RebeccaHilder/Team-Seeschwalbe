@@ -150,7 +150,9 @@ colors <- c("#E69F00", "#56B4E9")
 plot(x,main=oneID,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20)
 plot(data$y[which(data$ID==oneID)]~data$x[which(data$ID==oneID)],main=oneID,xlab="x",ylab="y",col=colors[vitstates2],type="p", pch=20)
 
-
+## Limits bis Tern-h2-68
+# ylim Zeitreihe: 0 - 1.5; xlim: 0-3000
+# ylim x~y Plot: -80 - 50; xlim: -80 - 60
 
 ####fitting 3-States HMM with speed ####
 
