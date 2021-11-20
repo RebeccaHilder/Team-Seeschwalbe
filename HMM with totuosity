@@ -118,6 +118,19 @@ viterbi <- function(x,mu.tort,sigma,Gamma,delta){
 }
 
 #### Global decoding für jedes Tier einzeln
+par(mfrow=c(2,1))
+colors <- c("#E69F00", "#56B4E9")
+for(i in unique(data$ID)){
+x=data$log.tort[which(data$ID==i)]
+vitstates2 <- viterbi(x,mu.tort,sigma,Gamma,delta)
+plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main=i,xlab="x",ylab="y",col=colors[vitstates2],type="p", pch=20)
+plot(x,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, xlim=c(0,3000), ylim=c(0,1))
+}
+
+
+
+
+#### Global decoding für jedes Tier einzeln (umständliche Version!)
 
 #Namen der Tiere
 data_Tabelle_Tiere <- data.frame(table(dat$ID))
