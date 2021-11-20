@@ -174,9 +174,7 @@ plot(x,main=oneID,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", 
 plot(data$y[which(data$ID==oneID)]~data$x[which(data$ID==oneID)],main=oneID,xlab="x",ylab="y",col=colors[vitstates2],type="p", pch=20, xlim=c(-80,80), ylim=c(-80,50))
 
 
-####fitting 3-States HMM with speed ####
-
-#noch nicht fehlerfrei!!!
+#fit 3-state HMM with tortuosity
 mllk.tort3 <- function(theta.star3, x, N){
   Gamma3 <- diag(N)  
   Gamma3[!Gamma3] <- exp(theta.star3[1:((N-1)*N)])
@@ -186,9 +184,12 @@ mllk.tort3 <- function(theta.star3, x, N){
   sigma.tort3 <- exp(theta.star3[(N-1)*N+(N+1):(2*N)]) #Varianz
   allprobs <- matrix(1,dim(x)[1],N)
   ind <- which(!is.na(x$log.tort)) 
-  allprobs[ind,] <- cbind(dgamma(x$log.tort[ind], shape=mu.tort3[1]^2/sigma.tort3[1]^2, scale=sigma.tort3[1]^2/mu.tort3[1]),
-                          dgamma(x$log.tort[ind], shape=mu.tort3[2]^2/sigma.tort3[2]^2, scale=sigma.tort3[2]^2/mu.tort3[2]), 
-                          dgamma(x$log.tort[ind], shape=mu.tort3[3]^2/sigma.tort3[3]^2, scale=sigma.tort3[3]^2/mu.tort3[3]))
+  allprobs[ind,] <- cbind(dgamma(x$log.tort[ind], shape=mu.tort3[1]^2/sigma.tort3[1]^2, 
+                                 scale=sigma.tort3[1]^2/mu.tort3[1]),
+                          dgamma(x$log.tort[ind], shape=mu.tort3[2]^2/sigma.tort3[2]^2, 
+                                 scale=sigma.tort3[2]^2/mu.tort3[2]), 
+                          dgamma(x$log.tort[ind], shape=mu.tort3[3]^2/sigma.tort3[3]^2, 
+                                 scale=sigma.tort3[3]^2/mu.tort3[3]))
   foo <- delta3%*%diag(allprobs[1,])
   l <- log(sum(foo))
   phi <- foo/sum(foo)
@@ -202,10 +203,12 @@ mllk.tort3 <- function(theta.star3, x, N){
 
 N=3
 
-theta.star3 <- c(rep(-2,(N-1)*N),log(c(0.03,0.1,0.3)),log(c(0.01,0.05,0.075)))
+# numerical maximization
+theta.star3 <- c(rep(-2,(N-1)*N),log(c(0.01,0.02,0.03)),log(c(0.005,0.01,0.02)))
 mod.tort3 <- nlm(mllk.tort3,theta.star3,x=data,N=N,print.level=1,iterlim=500)
 theta.star3.mle <- mod.tort3$estimate
 
+# back-transformation
 Gamma3 <- diag(N)
 Gamma3[!Gamma3] <- exp(theta.star3.mle[1:((N-1)*N)])
 Gamma3 <- Gamma3/rowSums(Gamma3)
@@ -213,36 +216,44 @@ delta3 <- solve(t(diag(N)-Gamma3+1),rep(1,N))
 mu.tort3 <- exp(theta.star3.mle[(N-1)*N+1:N])
 sigma.tort3 <- exp(theta.star3.mle[(N-1)*N+(N+1):(2*N)])
 
-round(Gamma3, 4) # Matrix auf 4 Nachkommastellen gerundet
+round(Gamma3, 4)
 mu.tort3
 sigma.tort3
 delta3
 
 
-
-#### 3-States HMM with speed grafische Darstellung ####
-# State dependent distributions
-hist(data$log.tort,probability=TRUE,breaks=500,col="light grey",xlab="log(tort)",main="State-dependent distributions", xlim= c(0,0.1))
-curve(delta3[1]*dgamma(x,shape=mu.tort3[1]^2/sigma.tort3[1]^2,scale=sigma.tort3[1]^2/mu.tort3[1]),add=TRUE,col="#E69F00", lwd=2) 
-curve(delta3[2]*dgamma(x,shape=mu.tort3[2]^2/sigma.tort3[2]^2,scale=sigma.tort3[2]^2/mu.tort3[2]),add=TRUE,col="#56B4E9", lwd=2)
-curve(delta3[3]*dgamma(x,shape=mu.tort3[3]^2/sigma.tort3[3]^2,scale=sigma.tort3[3]^2/mu.tort3[3]),add=TRUE,col="#009E73", lwd=2)
-#marginal distribution
+# graphical illustration (state dependent distributions)
+hist(data$log.tort, probability = TRUE, breaks = 500, col = "light grey", xlab = "log(tort)",
+     main = "State-dependent distributions", xlim = c(0,0.1))
 colours <- c("#E69F00", "#56B4E9", "#009E73", "black")
-curve(delta3[1]*dgamma(x,shape=mu.tort3[1]^2/sigma.tort3[1]^2,scale=sigma.tort3[1]^2/mu.tort3[1])
-      +delta3[2]*dgamma(x,shape=mu.tort3[2]^2/sigma.tort3[2]^2,scale=sigma.tort3[2]^2/mu.tort3[2])
-      +delta3[3]*dgamma(x,shape=mu.tort3[3]^2/sigma.tort3[3]^2,scale=sigma.tort3[3]^2/mu.tort3[3]),
-      add=TRUE,col="black", lwd=2, lty=2)
-legend("topright", inset = c(0,0), legend= c("State 1","State 2","State 3","Sum of densities"), pch = 16, col=colours)
+curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
+                         scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colours[1], lwd = 2) 
+curve(delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
+                         scale = sigma.tort3[2]^2/mu.tort3[2]), add = TRUE, col = colours[2], lwd = 2)
+curve(delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
+                         scale = sigma.tort3[3]^2/mu.tort3[3]), add = TRUE, col = colours[3], lwd = 2)
+curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2, 
+                         scale = sigma.tort3[1]^2/mu.tort3[1])
+      + delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
+                         scale = sigma.tort3[2]^2/mu.tort3[2])
+      + delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
+                         scale = sigma.tort3[3]^2/mu.tort3[3]),
+      add = TRUE, col = colours[4], lwd = 2, lty = 2)
+legend("topright", inset = c(0,0), legend = c("State 1", "State 2", "State 3", "Marginal distribution"), 
+       pch = 16, col = colours)
 
 
-#### 3-States HMM with speed global decoding ####
+# state decoding (global)
 viterbi3 <- function(x,mu.tort3,sigma.tort3,Gamma3,delta3){
   n <- length(x)
   allprobs <- matrix(1,n,3)
   ind <- which(!is.na(x))
-  allprobs[ind,] <- cbind(dgamma(x[ind], shape=mu.tort3[1]^2/sigma.tort3[1]^2, scale=sigma.tort3[1]^2/mu.tort3[1]),
-                          dgamma(x[ind], shape=mu.tort3[2]^2/sigma.tort3[2]^2, scale=sigma.tort3[2]^2/mu.tort3[2]), 
-                          dgamma(x[ind], shape=mu.tort3[3]^2/sigma.tort3[3]^2, scale=sigma.tort3[3]^2/mu.tort3[3]))
+  allprobs[ind,] <- cbind(dgamma(x[ind], shape=mu.tort3[1]^2/sigma.tort3[1]^2, 
+                                 scale=sigma.tort3[1]^2/mu.tort3[1]),
+                          dgamma(x[ind], shape=mu.tort3[2]^2/sigma.tort3[2]^2, 
+                                 scale=sigma.tort3[2]^2/mu.tort3[2]), 
+                          dgamma(x[ind], shape=mu.tort3[3]^2/sigma.tort3[3]^2, 
+                                 scale=sigma.tort3[3]^2/mu.tort3[3]))
   xi <- matrix(0,n,3)
   foo <- delta3*allprobs[1,]
   xi[1,] <- foo/sum(foo)
@@ -258,39 +269,15 @@ viterbi3 <- function(x,mu.tort3,sigma.tort3,Gamma3,delta3){
   iv
 }
 
-
-#### Global decoding für jedes Tier einzeln
-
-#Namen der Tiere
-data_Tabelle_Tiere <- data.frame(table(dat$ID))
-data_Anzahl_Tiere_groß <- data_Tabelle_Tiere[data_Tabelle_Tiere$Freq > 700,]
-data_Anzahl_Tiere_groß$Var1
-
-oneID<-"Tern-h2-17"
-oneID<-"Tern-h2-18"
-oneID<-"Tern-h2-19"
-oneID<-"Tern-h2-28"
-oneID<-"Tern-h2-30"
-oneID<-"Tern-h2-32"
-oneID<-"Tern-h2-36"
-oneID<-"Tern-h2-41"
-oneID<-"Tern-h2-49"
-oneID<-"Tern-h2-51"
-oneID<-"Tern-h2-63"
-oneID<-"Tern-h2-67"
-oneID<-"Tern-h2-68"
-oneID<-"Tern-h2-69"
-oneID<-"Tern-h2-70"
-oneID<-"Tern-h2-78"
-oneID<-"Tern-h2-92"
-oneID<-"Tern-h2-106"
-oneID<-"Tern-h2-115"
-
-x=data$log.tort[which(data$ID==oneID)]
-vitstates3 <- viterbi3(x,mu.tort3,sigma.tort3,Gamma3,delta3)
-colors <- c("#E69F00", "#56B4E9","#009E73")
-plot(data$y[which(data$ID==oneID)]~data$x[which(data$ID==oneID)],main=oneID,xlab="x",ylab="y",col=colors[vitstates2],type="p", pch=20)
-plot(x,main=oneID,xlab="time",ylab="step",col=colors[vitstates3],type="p", pch=20)
-
-
-
+# graphical illustration
+pdf("3-States HMM tortuosity decoding.pdf", width = 8.27, height = 11.69)
+colours <- c("#E69F00", "#56B4E9", "#009E73")
+for(i in unique(data$ID)){
+  x = data$log.tort[which(data$ID==i)]
+  vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
+  plot(data$y[which(data$ID==i)] ~ data$x[which(data$ID==i)], main=i,
+       xlab = "x", ylab = "y", col = colours[vitstates3], type = "p", pch = 20)
+  plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], type = "p", 
+       pch = 20, xlim = c(0,3000), ylim = c(0,1))
+}
+dev.off()
