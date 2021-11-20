@@ -89,13 +89,13 @@ delta
 #### 2-States HMM with speed grafische Darstellung ####
 # State dependent distributions
 #pdf("2-States HMM Speed.pdf", width=11.69, height=8.27) #speichert alle Plots direkt im Ordner des Datensatzes
-hist(data$step,probability=TRUE,breaks=100,col="light grey",xlab="step length",main="State-dependent distributions", xlim= c(0,0.45))
+hist(data$step,probability=TRUE,breaks=50,col="light grey",xlab="step length",main="State-dependent distributions", xlim= c(0,0.45), ylim = c(0,11) )
 curve(delta[1]*dgamma(x,shape=mu.step[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.step[1]),add=TRUE,col="#E69F00", lwd=2)
 curve(delta[2]*dgamma(x,shape=mu.step[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.step[2]),add=TRUE,col="#56B4E9", lwd=2)
 #marginal distribution
 curve(delta[1]*dgamma(x,shape=mu.step[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.step[1])+delta[2]*dgamma(x,shape=mu.step[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.step[2]),add=TRUE,col="black", lwd=2, lty=2)
 colours <- c("#E69F00", "#56B4E9", "black")
-legend("topleft", inset = c(0,0), legend= c("State 1","State 2","Sum of densities"), pch = 16, col=colours)
+legend("topleft", inset = c(0,0), legend= c("State 1","State 2","Marginal distribution"), pch = 16, col=colours)
 #dev.off()
 
 #### 2-States HMM with speed global decoding ####
