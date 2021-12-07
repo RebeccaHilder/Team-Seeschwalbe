@@ -1,0 +1,50 @@
+####################################################################
+#### Vorher Modell "covariate time-to-slick" des 2-HMM einlesen ####
+####################################################################
+
+
+#### Gamma Plot erstellen ####
+#Manueller Vergleich
+Gamma_tts
+Gamma
+
+#betas definieren
+beta0_tts <- mod_tts$estimate[6:7]
+beta1_tts <- mod_tts$estimate[8:9]
+beta0_tts
+beta1_tts
+
+##Gamma Plot für Übergangswsk von 1 zu 1
+Gamma11 <- rep(NA,1000)
+tts.seq <- seq(0,1, length= 1000)
+
+
+for (k in 1:1000) {
+  eta <- beta0_tts + beta1_tts*tts.seq[k]
+  Gamma_tts <- diag(2)
+  # tpm has to be updated after every new estimation of the beta values
+  Gamma_tts[!Gamma_tts] <- exp(eta) # assign values to the off-diagonal entries of the Gamma-matrix
+  Gamma_tts <- Gamma_tts/rowSums(Gamma_tts)
+  Gamma11[k] <- 1-Gamma_tts[1,2]
+}
+#Gamma11
+#min(Gamma11)
+plot(Gamma11 ~ tts.seq,main="Gamma11",ylab = "P(1->1)",xlab="tortuosity", ylim=c(0.95,1), type="l", lwd=5)
+
+
+##Gamma Plot für Übergangswsk von 2 zu 1
+Gamma21 <- rep(NA,1000)
+tts.seq <- seq(0,1, length= 1000)
+
+for (k in 1:1000) {
+  eta <- beta0_tts + beta1_tts*tts.seq[k]
+  Gamma_tts <- diag(2)
+  # tpm has to be updated after every new estimation of the beta values
+  Gamma_tts[!Gamma_tts] <- exp(eta) # assign values to the off-diagonal entries of the Gamma-matrix
+  Gamma_tts <- Gamma_tts/rowSums(Gamma_tts)
+  Gamma21[k] <- 1-Gamma_tts[2,2]
+}
+#Gamma21
+#max(Gamma21)
+plot(Gamma21 ~ tts.seq,main="Gamma21",ylab = "P(2->1)",xlab="tortuosity", ylim=c(0,0.02), type="l", lwd=5)
+
