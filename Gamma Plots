@@ -48,3 +48,67 @@ for (k in 1:1000) {
 #max(Gamma21)
 plot(Gamma21 ~ tts.seq,main="Gamma21",ylab = "P(2->1)",xlab="tortuosity", ylim=c(0,0.02), type="l", lwd=5)
 
+
+
+
+
+
+# Gamma Plots
+beta0_tts <- mod.tts$estimate[6:7]
+beta1_tts <- mod.tts$estimate[8:9]
+beta0_tts
+beta1_tts
+
+tts.seq <- seq(0,1, length = 1000)
+
+# changing prob 1 to 1 
+Gamma11 <- rep(NA,1000)
+for (k in 1:1000) {
+  eta <- beta0_tts + beta1_tts*tts.seq[k]
+  Gamma.tts <- diag(2)
+  Gamma.tts[!Gamma.tts] <- exp(eta) 
+  Gamma.tts <- Gamma.tts/rowSums(Gamma.tts)
+  Gamma11[k] <- Gamma.tts[1,1]
+}
+# changing prob 2 to 2
+Gamma22 <- rep(NA,1000)
+tts.seq <- seq(0,1, length= 1000)
+for (k in 1:1000) {
+  eta <- beta0_tts + beta1_tts*tts.seq[k]
+  Gamma.tts <- diag(2)
+  Gamma.tts[!Gamma.tts] <- exp(eta) 
+  Gamma.tts <- Gamma.tts/rowSums(Gamma.tts)
+  Gamma22[k] <- Gamma.tts[2,2]
+}
+# changing prob 1 to 2 
+Gamma12 <- rep(NA,1000)
+tts.seq <- seq(0,1, length = 1000)
+for (k in 1:1000) {
+  eta <- beta0_tts + beta1_tts*tts.seq[k]
+  Gamma.tts <- diag(2)
+  Gamma.tts[!Gamma.tts] <- exp(eta) 
+  Gamma.tts <- Gamma.tts/rowSums(Gamma.tts)
+  Gamma12[k] <- Gamma.tts[1,2]
+}
+# changing prob 2 to 1 
+Gamma21 <- rep(NA,1000)
+tts.seq <- seq(0,1, length = 1000)
+for (k in 1:1000) {
+  eta <- beta0_tts + beta1_tts*tts.seq[k]
+  Gamma.tts <- diag(2)
+  Gamma.tts[!Gamma.tts] <- exp(eta) 
+  Gamma.tts <- Gamma.tts/rowSums(Gamma.tts)
+  Gamma21[k] <- Gamma.tts[2,1]
+}
+
+# graphical illustration
+par(mfrow = c(2,2))
+plot(Gamma11 ~ tts.seq, main = "Gamma11", ylab = "P(1->1)", xlab = "tortuosity", ylim = c(0.95,1), 
+     type="l", lwd=5)
+plot(Gamma12 ~ tts.seq, main = "Gamma12", ylab = "P(1->2)", xlab = "tortuosity", ylim = c(0,0.05), 
+     type="l", lwd=5)
+plot(Gamma21 ~ tts.seq, main = "Gamma21", ylab = "P(2->1)", xlab = "tortuosity", ylim = c(0,0.05), 
+     type="l", lwd=5)
+plot(Gamma22 ~ tts.seq, main = "Gamma22", ylab = "P(2->2)", xlab = "tortuosity", ylim = c(0.95,1), 
+     type="l", lwd=5)
+
