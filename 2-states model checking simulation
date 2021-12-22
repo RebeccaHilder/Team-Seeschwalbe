@@ -1,0 +1,68 @@
+#### model checking ####
+
+set.seed(7265)
+n <- 20177
+x <- s <- rep(NA,n)
+s[1] <- sample(1:2,size=1,prob=delta)
+x[1] <- rgamma(1,shape=mu.tort[s[1]]^2/sigma[s[1]]^2,scale=sigma[s[1]]^2/mu.tort[s[1]])
+
+for (t in 2:n){
+  s[t] <- sample(1:2,size=1,prob=Gamma[s[t-1],])
+  x[t] <- rgamma(1,shape=mu.tort[s[t]]^2/sigma[s[t]]^2,scale=sigma[s[t]]^2/mu.tort[s[t]])
+}
+
+
+### fitting 2-States HMM with tortuosity
+mllk.sim <- function(theta.star, x, N){
+  Gamma <- diag(N) #identity matrix 
+  Gamma[!Gamma] <- exp(theta.star[1:2]) #turn zeros in matrix (off-diagonal entries) into exponentials of theta-stars
+  Gamma <- Gamma/rowSums(Gamma) #devide by row sums so that entries of a row sum to 1 (transformation is inverse logit link)
+  delta <- solve(t(diag(N)-Gamma+1),rep(1,N)) #stationary distribution erstellen
+  mu.tort <- exp(theta.star[3:4]) #Mittelwert
+  sigma <- exp(theta.star[5:6]) #Varianz
+  allprobs <- matrix(1,length(x),N)
+  ind <- which(!is.na(x)) # indices of non-missing tortuosities
+  allprobs[ind,] <- cbind(dgamma(x[ind],shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1]),
+                          dgamma(x[ind],shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]))
+  foo <- delta%*%diag(allprobs[1,])
+  l <- log(sum(foo))
+  phi <- foo/sum(foo)
+  for (t in 2:length(x)){
+    foo <- phi%*%Gamma%*%diag(allprobs[t,])
+    l <- l+log(sum(foo))
+    phi <- foo/sum(foo)
+  }
+  return(-l)
+}
+
+N=2
+
+#starting values
+theta.star <- c(rep(-2,(N-1)*N),log(c(0.005,0.04)),log(c(0.005,0.01)))
+
+# numerical maximization 
+mod.sim <- nlm(mllk.sim,theta.star,x=x,N=N,print.level=2,iterlim=500)
+theta.star.sim = mod.sim$estimate
+
+#back-transformation
+Gamma.sim <- diag(N)
+Gamma.sim[!Gamma.sim] <- exp(theta.star.sim[1:((N-1)*N)])
+Gamma.sim <- Gamma.sim/rowSums(Gamma.sim)
+delta.sim <- solve(t(diag(N)-Gamma.sim+1),rep(1,N))
+mu.sim <- exp(theta.star.sim[(N-1)*N+(N+1):(2*N)])
+sigma.sim <- exp(theta.star.sim[(N-1)*N+(N+1):(2*N)])
+
+round(Gamma.sim, 4) #Matrix auf 4 Nachkommastellen gerundet
+mu.sim
+sigma.sim
+delta.sim
+
+### 2-States HMM with simulated tortuosity grafische Darstellung
+# State dependent distributions
+hist(x,probability=TRUE,breaks=150,col="light grey",xlab="log(tort)",main="State-dependent distributions", xlim= c(0,0.1))
+curve(delta[1]*dgamma(x,shape=mu.sim[1]^2/sigma.sim[1]^2,scale=sigma.sim[1]^2/mu.sim[1]),add=TRUE,col="#E69F00", lwd=2)
+curve(delta[2]*dgamma(x,shape=mu.sim[2]^2/sigma.sim[2]^2,scale=sigma.sim[2]^2/mu.sim[2]),add=TRUE,col="#56B4E9", lwd=2)
+curve(delta[1]*dgamma(x,shape=mu.sim[1]^2/sigma.sim[1]^2,scale=sigma.sim[1]^2/mu.sim[1])
+      +delta[2]*dgamma(x,shape=mu.sim[2]^2/sigma.sim[2]^2,scale=sigma.sim[2]^2/mu.sim[2]),add=TRUE,col="black", lwd=2, lty=2)
+colours <- c("#E69F00", "#56B4E9", "black")
+legend("topright", inset = c(0,0), legend= c("State 1","State 2","Sum of densities"), pch = 16, col=colours)
