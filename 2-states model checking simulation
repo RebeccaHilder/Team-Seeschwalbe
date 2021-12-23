@@ -60,9 +60,9 @@ delta.sim
 ### 2-States HMM with simulated tortuosity grafische Darstellung
 # State dependent distributions
 hist(x,probability=TRUE,breaks=150,col="light grey",xlab="log(tort)",main="State-dependent distributions", xlim= c(0,0.1))
-curve(delta[1]*dgamma(x,shape=mu.sim[1]^2/sigma.sim[1]^2,scale=sigma.sim[1]^2/mu.sim[1]),add=TRUE,col="#E69F00", lwd=2)
-curve(delta[2]*dgamma(x,shape=mu.sim[2]^2/sigma.sim[2]^2,scale=sigma.sim[2]^2/mu.sim[2]),add=TRUE,col="#56B4E9", lwd=2)
-curve(delta[1]*dgamma(x,shape=mu.sim[1]^2/sigma.sim[1]^2,scale=sigma.sim[1]^2/mu.sim[1])
-      +delta[2]*dgamma(x,shape=mu.sim[2]^2/sigma.sim[2]^2,scale=sigma.sim[2]^2/mu.sim[2]),add=TRUE,col="black", lwd=2, lty=2)
+curve(delta.sim[1]*dgamma(x,shape=mu.sim[1]^2/sigma.sim[1]^2,scale=sigma.sim[1]^2/mu.sim[1]),add=TRUE,col="#E69F00", lwd=2)
+curve(delta.sim[2]*dgamma(x,shape=mu.sim[2]^2/sigma.sim[2]^2,scale=sigma.sim[2]^2/mu.sim[2]),add=TRUE,col="#56B4E9", lwd=2)
+curve(delta.sim[1]*dgamma(x,shape=mu.sim[1]^2/sigma.sim[1]^2,scale=sigma.sim[1]^2/mu.sim[1])
+      +delta.sim[2]*dgamma(x,shape=mu.sim[2]^2/sigma.sim[2]^2,scale=sigma.sim[2]^2/mu.sim[2]),add=TRUE,col="black", lwd=2, lty=2)
 colours <- c("#E69F00", "#56B4E9", "black")
 legend("topright", inset = c(0,0), legend= c("State 1","State 2","Sum of densities"), pch = 16, col=colours)
