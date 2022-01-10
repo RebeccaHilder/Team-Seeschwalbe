@@ -1,0 +1,26 @@
+#### model checking ####
+## with pseudo residuals
+?residuals
+#install.packages("HiddenMarkov")
+library(HiddenMarkov)
+?dthmm
+d <- dthmm(data$log.tort, Gamma3, delta3, "gamma",
+           list(shape=c(mu.tort3[1]^2/sigma.tort3[1]^2,mu.tort3[2]^2/sigma.tort3[2]^2,mu.tort3[3]^2/sigma.tort3[3]^2),
+                scale=c(sigma.tort3[1]^2/mu.tort3[1],sigma.tort3[2]^2/mu.tort3[2],sigma.tort3[3]^2/mu.tort3[3])))
+resids <- residuals(d)
+# auf Ausreißer untersuchen, da Q-Q-Plot nicht mit Inf-Werten funktioniert
+which(resids==Inf) #kommt bei 3-states nicht vor
+
+#Histogram of pseudo-residuals
+hist(resids, freq=F)
+m <- mean(resids)
+s <-  sd(resids)
+x <- resids
+curve(dnorm(x,m,s),add=TRUE,lwd=3, col="blue")
+# Normal Q-Q-Plot
+qqnorm(resids)
+qqline(resids)
+#Time series of pseudo-residuals
+plot(resids)
+#ACF of the pseudo-residuals
+acf(resids)
