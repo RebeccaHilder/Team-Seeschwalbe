@@ -4,17 +4,21 @@
 #install.packages("HiddenMarkov")
 library(HiddenMarkov)
 ?dthmm
-x <- dthmm(data$log.tort, Gamma, delta, "gamma", list(shape=c(mu.tort[1]^2/sigma[1]^2,mu.tort[2]^2/sigma[2]^2),scale=c(sigma[1]^2/mu.tort[1],sigma[2]^2/mu.tort[2])))
-resids <- residuals(x)
+d <- dthmm(data$log.tort, Gamma, delta, "gamma", list(shape=c(mu.tort[1]^2/sigma[1]^2,mu.tort[2]^2/sigma[2]^2),scale=c(sigma[1]^2/mu.tort[1],sigma[2]^2/mu.tort[2])))
+resids <- residuals(d)
 # auf Ausreißer untersuchen, da Q-Q-Plot nicht mit Inf-Werten funktioniert
 which(resids==Inf)
 data.resid <- data[-12009,] #Ausreißer entfernen
 data.resid <- data.resid[-11997,] #Ausreißer entfernen
 # Residuen neu definieren
-x <- dthmm(data.resid$log.tort, Gamma, delta, "gamma", list(shape=c(mu.tort[1]^2/sigma[1]^2,mu.tort[2]^2/sigma[2]^2),scale=c(sigma[1]^2/mu.tort[1],sigma[2]^2/mu.tort[2])))
-resids <- residuals(x)
+d <- dthmm(data.resid$log.tort, Gamma, delta, "gamma", list(shape=c(mu.tort[1]^2/sigma[1]^2,mu.tort[2]^2/sigma[2]^2),scale=c(sigma[1]^2/mu.tort[1],sigma[2]^2/mu.tort[2])))
+resids <- residuals(d)
 #Histogram of pseudo-residuals
-hist(resids)
+hist(resids, freq=F)
+m <- mean(resids)
+s <-  sd(resids)
+x <- resids
+curve(dnorm(x,m,s),add=TRUE,lwd=3, col="blue")
 # Normal Q-Q-Plot
 qqnorm(resids)
 qqline(resids)
