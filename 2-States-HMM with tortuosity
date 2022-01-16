@@ -1,6 +1,6 @@
 #### Team-Seeschwalbe - Tortuosity
 
-#### Daten einlesen und bearbeiten ####
+#### Import and edit data ####
 setwd("~/Uni/Lernstoff/Master/3. Semester/04 Statistical Consulting/Daten")
 dat <- read.csv("slick2-h1-h2.csv")
 
@@ -86,7 +86,7 @@ sigma
 delta
 
 
-#### 2-States HMM with speed grafische Darstellung ####
+#### 2-States HMM visualization ####
 # State dependent distributions
 hist(data$log.tort,probability=TRUE,breaks=500,col="light grey",xlab="log(tort)",main="State-dependent distributions", xlim= c(0,0.1))
 curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1]),add=TRUE,col="#E69F00", lwd=2)
@@ -330,13 +330,13 @@ for (k in 1:1000) {
 
 # graphical illustration
 par(mfrow = c(2,2))
-plot(Gamma11 ~ tts.seq, main = "Gamma11", ylab = "P(1->1)", xlab = "slick", ylim = c(0.95,1), 
+plot(Gamma11 ~ tts.seq, main = "Gamma11", ylab = "P(1->1)", xlab = "tts", ylim = c(0.95,1), 
      type="l", lwd=5)
-plot(Gamma12 ~ tts.seq, main = "Gamma12", ylab = "P(1->2)", xlab = "slick", ylim = c(0,0.05), 
+plot(Gamma12 ~ tts.seq, main = "Gamma12", ylab = "P(1->2)", xlab = "tts", ylim = c(0,0.05), 
      type="l", lwd=5)
-plot(Gamma21 ~ tts.seq, main = "Gamma21", ylab = "P(2->1)", xlab = "slick", ylim = c(0,0.05), 
+plot(Gamma21 ~ tts.seq, main = "Gamma21", ylab = "P(2->1)", xlab = "tts", ylim = c(0,0.05), 
      type="l", lwd=5)
-plot(Gamma22 ~ tts.seq, main = "Gamma22", ylab = "P(2->2)", xlab = "slick", ylim = c(0.95,1), 
+plot(Gamma22 ~ tts.seq, main = "Gamma22", ylab = "P(2->2)", xlab = "tts", ylim = c(0.95,1), 
      type="l", lwd=5)
 dev.off()
 
