@@ -235,6 +235,13 @@ sigma_tts <- exp(mod_tts$estimate[3:4])
 mu_tts
 sigma_tts
 
+#back-transformation
+Gamma_tts <- diag(N)
+Gamma_tts[!Gamma_tts] <- exp(mod_tts$estimate[1:((N-1)*N)])
+Gamma_tts <- Gamma_tts/rowSums(Gamma_tts)
+Gamma_tts
+Gamma.tts <- Gamma_tts
+
 
 #### Model selection ####
 ## AIC
@@ -277,7 +284,7 @@ delta
 
 ## Gamma Plot erstellen ##
 #Manueller Vergleich
-Gamma_tts
+Gamma.tts
 Gamma
 
 #betas definieren
