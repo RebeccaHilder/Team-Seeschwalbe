@@ -254,6 +254,12 @@ mu_tts3 <- exp(mod_tts3$estimate[1:3])
 sigma_tts3 <- exp(mod_tts3$estimate[4:6])
 mu_tts3
 sigma_tts3
+#back-transformation
+Gamma_tts3 <- diag(N)
+Gamma_tts3[!Gamma_tts3] <- exp(mod_tts3$estimate[1:((N-1)*N)])
+Gamma_tts3 <- Gamma_tts3/rowSums(Gamma_tts3)
+Gamma_tts3
+Gamma.tts3 <- Gamma_tts3
 
 
 #### Model selection ####
@@ -295,7 +301,7 @@ delta3<-solve(t(diag(3)-Gamma_slick3+1),c(1,1,1))
 delta3
 
 #Manueller Vergleich
-Gamma_tts3
+Gamma.tts3
 Gamma3
 
 #betas definieren
