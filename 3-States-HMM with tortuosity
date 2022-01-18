@@ -449,52 +449,9 @@ for (t in 2:n){
   x[t] <- rgamma(1,shape=mu.tort[s[t]]^2/sigma[s[t]]^2,scale=sigma[s[t]]^2/mu.tort[s[t]])
 }
 
-#fit 3-state HMM with tortuosity
-mllk.tort3.sim <- function(theta.star3, x, N){
-  Gamma3 <- diag(N)  
-  Gamma3[!Gamma3] <- exp(theta.star3[1:((N-1)*N)])
-  Gamma3 <- Gamma3/rowSums(Gamma3) 
-  delta3 <- solve(t(diag(N)-Gamma3+1),rep(1,N)) 
-  mu.tort3 <- exp(theta.star3[(N-1)*N+1:N])  #Mittelwert
-  sigma.tort3 <- exp(theta.star3[(N-1)*N+(N+1):(2*N)]) #Varianz
-  allprobs <- matrix(1,length(x),N)
-  ind <- which(!is.na(x)) 
-  allprobs[ind,] <- cbind(dgamma(x[ind], shape=mu.tort3[1]^2/sigma.tort3[1]^2, 
-                                 scale=sigma.tort3[1]^2/mu.tort3[1]),
-                          dgamma(x[ind], shape=mu.tort3[2]^2/sigma.tort3[2]^2, 
-                                 scale=sigma.tort3[2]^2/mu.tort3[2]), 
-                          dgamma(x[ind], shape=mu.tort3[3]^2/sigma.tort3[3]^2, 
-                                 scale=sigma.tort3[3]^2/mu.tort3[3]))
-  foo <- delta3%*%diag(allprobs[1,])
-  l <- log(sum(foo))
-  phi <- foo/sum(foo)
-  for (t in 2:length(x)){
-    foo <- phi%*%Gamma3%*%diag(allprobs[t,])
-    l <- l+log(sum(foo))
-    phi <- foo/sum(foo)
-  }
-  return(-l)
-}
-
-N=3
-
-# numerical maximization
-theta.star3 <- c(rep(-2,(N-1)*N),log(c(0.01,0.02,0.03)),log(c(0.005,0.01,0.02)))
-mod.tort3.sim <- nlm(mllk.tort3.sim,theta.star3,x=x,N=N,print.level=1,iterlim=500)
-theta.star3.mle.sim <- mod.tort3.sim$estimate
-
-# back-transformation
-Gamma3.sim <- diag(N)
-Gamma3.sim[!Gamma3.sim] <- exp(theta.star3.mle.sim[1:((N-1)*N)])
-Gamma3.sim <- Gamma3.sim/rowSums(Gamma3.sim)
-delta3.sim <- solve(t(diag(N)-Gamma3.sim+1),rep(1,N))
-mu.tort3.sim <- exp(theta.star3.mle.sim[(N-1)*N+1:N])
-sigma.tort3.sim <- exp(theta.star3.mle.sim[(N-1)*N+(N+1):(2*N)])
-
-round(Gamma3.sim, 4)
-mu.tort3.sim
-sigma.tort3.sim
-delta3.sim
+# grafischer Vergleich
+hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #simulierte Daten
+hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #echte Daten
 
 
 #### model checking with pseudo residuals #####
