@@ -1,0 +1,8 @@
+###Anhang Time series of pseudo-residuals 
+#Time series of pseudo-residuals
+plot(resids)
+plot(resids , xlim = c(6000,12000))
+data.resid$residuals <- resids
+
+which(resids>5)
+table(data[which(resids>4),]$ID)
