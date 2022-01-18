@@ -24,6 +24,11 @@ dat$freq <- x$freq
 #which(data_frame$Freq >400) #welche Terns haben mehr als 400 Beobachtungen
 #sum(data_frame$Freq >400) #wie viele Terns haben mehr als 400 Beobachtungen
 
+##Für alle Datenpunkte:
+#which(data$tortuosity==1)
+#ind<-which(data$tortuosity==1)
+#data$tortuosity[ind]<-rep(0.01,length(ind))
+
 ## Datensatz nur mit Terns, die >400 bzw. >700 Beobachtungspunkte besitzen
 #dat_400 <- subset(dat, dat$freq > 400)
 dat_700 <- subset(dat, dat$freq > 700)
