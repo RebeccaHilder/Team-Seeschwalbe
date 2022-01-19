@@ -23,7 +23,7 @@ colors <- c("#E69F00", "#56B4E9")
 for(i in unique(data.resid.outlier$ID)){
   x=data.resid.outlier$log.tort[which(data.resid.outlier$ID==i)]
   vitstates2 <- viterbi(x,mu.tort,sigma,Gamma,delta)
-  plot(x,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, ylim=c(0,1))
+  plot(x,xlab="time",ylab="log(tort)",main=i,col=colors[vitstates2],type="p", pch=20, ylim=c(0,1))
   legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colours)
   
 }
