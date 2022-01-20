@@ -1,0 +1,19 @@
+#testing for global maxima (3 states, no covariates)
+llks <- rep(NA,100)
+mods <- vector("list")
+for(k in 1:100){
+  theta.star3 <- c(qlogis(runif(6,0,1)),log(runif(3,0.005,0.999)),log(runif(3,0.001,0.999)))
+  mods[[k]] <- nlm(mllk.tort3,theta.star3,x=data,N=N,print.level=2)
+  llks[k] <- -mods[[k]]$minimum
+}
+llks
+
+#testing for global maxima (3 states, with time-to-slick)
+llks_tts <- rep(NA,10)
+mods_tts <- vector("list")
+for(k in 1:10){
+  theta.star.tts <- c(qlogis(runif(6,0,1)),log(runif(3,0.005,0.999)),log(runif(3,0.001,0.999)))
+  mods_tts[[k]] <- nlm(mllk.tts3,theta.star.tts,x=data,N=N,print.level=2)
+  llks_tts[k] <- -mods_tts[[k]]$minimum
+}
+llks_tts
