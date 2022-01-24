@@ -405,3 +405,35 @@ plot(resids)
 acf(resids)
 
 #dev.off()
+
+###Anhang Time series of pseudo-residuals für 2 States HMM
+#Time series of pseudo-residuals
+plot(resids)
+plot(resids, col=ifelse(resids>=4,"orange","black"), pch=ifelse(resids>=4,1,1))
+plot(resids , xlim = c(6000,12000))
+data.resid$residuals <- resids
+
+which(resids>4)
+table(data.resid[which(resids>4),]$ID)
+
+data.resid.outlier <- rbind(data.resid[which(resids>4),])
+
+#dat$IDresiduals <- seq(1:63546)  #muss zu Beginn durchlaufen werden für Plot mit ID
+#plot(data.resid.outlier$residuals ~data.resid.outlier$IDresiduals)
+plot(data.resid.outlier$residuals)
+
+##Plot mit decoding für alle
+plot(data.resid.outlier$log.tort,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, ylim=c(0,1))
+legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colours)
+
+par(mfrow = c(2,4))
+##Plot mit decoding für jeden einzeln
+colors <- c("#E69F00", "#56B4E9")
+for(i in unique(data.resid.outlier$ID)){
+  x=data.resid.outlier$log.tort[which(data.resid.outlier$ID==i)]
+  vitstates2 <- viterbi(x,mu.tort,sigma,Gamma,delta)
+  plot(x,xlab="time",ylab="log(tort)",main=i,col=colors[vitstates2],type="p",lwd=5, pch=20, ylim=c(0,1))
+  legend("bottomright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colours)
+  
+}
+### Alle sind in State 1 
