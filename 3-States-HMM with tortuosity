@@ -442,13 +442,14 @@ n <- 20177
 x <- s <- rep(NA,n)
 #s[1] <- sample(1:2,size=1,prob=delta3)
 s[1] <- sample(1:3,size=1,prob=delta3)
-x[1] <- rgamma(1,shape=mu.tort[s[1]]^2/sigma[s[1]]^2,scale=sigma[s[1]]^2/mu.tort[s[1]])
+x[1] <- rgamma(1,shape=mu.tort3[s[1]]^2/sigma.tort3[s[1]]^2,scale=sigma.tort3[s[1]]^2/mu.tort3[s[1]])
 
 for (t in 2:n){
-  s[t] <- sample(1:2,size=1,prob=Gamma[s[t-1],])
-  x[t] <- rgamma(1,shape=mu.tort[s[t]]^2/sigma[s[t]]^2,scale=sigma[s[t]]^2/mu.tort[s[t]])
+  s[t] <- sample(1:3,size=1,prob=Gamma3[s[t-1],])
+  x[t] <- rgamma(1,shape=mu.tort3[s[t]]^2/sigma.tort3[s[t]]^2,scale=sigma.tort3[s[t]]^2/mu.tort3[s[t]])
 }
 
+par(mfrow = c(1,2))
 # grafischer Vergleich
 hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #simulierte Daten
 hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #echte Daten
