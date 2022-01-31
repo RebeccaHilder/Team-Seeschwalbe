@@ -1,0 +1,47 @@
+### dummy-covariate slick
+mllk.slick3 <- function(theta.star,x){
+  mu.tort3 <- cumsum(exp(theta.star[1:3]))
+  sigma.tort3 <- cumsum(exp(theta.star[4:6]))
+  delta3 <- c(1,exp(theta.star[7:8])/sum(c(1,exp(theta.star[7:8]))))
+  beta3 <- cbind(theta.star[9:14],theta.star[15:20])
+  allprobs <- matrix(1,dim(x)[1],3)
+  ind <- which(!is.na(x$log.tort)) # indices of non-missing step lengths
+  allprobs[ind,] <- cbind(dgamma(x$log.tort[ind],shape=mu.tort3[1]^2/sigma.tort3[1]^2,scale=sigma.tort3[1]^2/mu.tort3[1]),
+                          dgamma(x$log.tort[ind],shape=mu.tort3[2]^2/sigma.tort3[2]^2,scale=sigma.tort3[2]^2/mu.tort3[2]),
+                          dgamma(x$log.tort[ind],shape=mu.tort3[3]^2/sigma.tort3[3]^2,scale=sigma.tort3[3]^2/mu.tort3[3]))
+  #for (j in 1:2){
+  #  allprobs[,j] <- dgamma(x$step,shape=mu.step[j]^2/sigma[j]^2,scale=sigma[j]^2/mu.step[j])
+  #}
+  foo <- delta3%*%diag(allprobs[1,])
+  l <- log(sum(foo))
+  phi <- foo/sum(foo)
+  for (t in 2:dim(x)[1]){
+    eta <- beta3[,1]+beta3[,2]*x[t,"slick"]
+    Gamma3 <- diag(3)
+    # tpm has to be updated after every new estimation of the beta values
+    Gamma3[!Gamma3] <- exp(eta) # assign values to the off-diagonal entries of the Gamma-matrix
+    Gamma3 <- Gamma3/rowSums(Gamma3)
+    foo <- phi%*%Gamma3%*%diag(allprobs[t,])
+    l <- l+log(sum(foo))
+    phi <- foo/sum(foo)
+  }
+  return(-l)
+}
+
+N=3
+
+#starting values
+delta0 <- c(0,0)
+# choose beta0 such that the diagonal elements of the resulting Gamma matrix will be highest (similar to starting values for gamma_ij)
+beta0 <- rep(-2,N*(N-1))
+# here my initial guess is that our covariate has no effect on the state process and hence I set all beta1 values to zero
+beta1 <- rep(0,N*(N-1))
+
+theta.star <- c(log(mu.tort3), log(sigma.tort3), delta0, beta0, beta1)
+mod_slick3 <- nlm(mllk.slick3,theta.star,x=data,print.level=2, iterlim=500)
+
+# natural parameters
+mu_slick3 <- cumsum(exp(mod_slick3$estimate[1:3]))
+sigma_slick3 <- cumsum(exp(mod_slick3$estimate[4:6]))
+mu_slick3
+sigma_slick3
