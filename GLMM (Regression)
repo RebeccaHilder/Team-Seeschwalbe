@@ -1,4 +1,8 @@
-## normales GLM
+###########################################################                                                                          
+#######      GLMM for seebirds with tortuosity      #######
+###########################################################  
+
+## simple GLM
 mod1 <- glm(data$log.tort~data$inverse.tts,family=Gamma(link="log"))
 summary(mod1)
 
@@ -6,11 +10,11 @@ summary(mod1)
 ## GLMM
 library(lme4)
 mod2 <- glmer(data$log.tort~data$inverse.tts+(data$inverse.tts|data$ID),
-             family=Gamma(link="log"))
+              family=Gamma(link="log"))
 summary(mod2)
 
 
-## GLMM mit autokorrelierten Residuen
+## GLMM with autocorrelated residuals
 library(MASS)
 #install.packages("nlme")
 library(nlme)
