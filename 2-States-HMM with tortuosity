@@ -1,12 +1,12 @@
 
-###########################################################                                                                            .
+###########################################################                                                                          
 #######  2-States HMM for seebirds with tortuosity  #######
-###########################################################                                                                                .
+###########################################################                                                                                
 
 #### Import and edit data ####
 setwd("~/Uni/Lernstoff/Master/3. Semester/04 Statistical Consulting/Daten")
 #first dataset
-#dat <- read.csv("slick2-h1-h2.csv")
+dat <- read.csv("slick2-h1-h2.csv")
 
 ## Load packages
 #install.packages("HiddenMarkov")
@@ -27,17 +27,18 @@ x <- data.frame(data2, freq=ave(seq_along(data2), data2, FUN=length))
 dat$freq <- x$freq
 # New datatset
 dat_700 <- subset(dat, dat$freq > 700)
+#which(dat_700$tortuosity==1)
 
 
 ##For all data points:
 #High values must be changed
-#which(data$tortuosity==1)
-#ind<-which(data$tortuosity==1)
-#data$tortuosity[ind]<-rep(0.01,length(ind)) 
+#which(dat$tortuosity==1)
+#ind<-which(dat$tortuosity==1)
+#dat$tortuosity[ind]<-rep(1.01,length(ind)) 
 
 
 ## Prepare data
-data <- prepData(dat_700, type="UTM")
+#data <- prepData(dat_700, type="UTM")
 #data <- prepData(dat, type="UTM")
 
 ## First overview of flight characteristics
@@ -57,8 +58,8 @@ mllk.tort <- function(theta.star, x, N){
   Gamma[!Gamma] <- exp(theta.star[1:2]) 
   Gamma <- Gamma/rowSums(Gamma) 
   delta <- solve(t(diag(N)-Gamma+1),rep(1,N)) 
-  mu.tort <- exp(theta.star[3:4]) 
-  sigma <- exp(theta.star[5:6]) 
+  mu.tort <- cumsum(exp(theta.star[3:4])) 
+  sigma <- cumsum(exp(theta.star[5:6])) 
   allprobs <- matrix(1,dim(x)[1],N)
   ind <- which(!is.na(x$log.tort))
   allprobs[ind,] <- cbind(dgamma(x$log.tort[ind],shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1]),
@@ -82,7 +83,7 @@ hist(data$log.tort, breaks=400, main = "Histogram of log(tortuosity)", xlab = "l
 theta.star <- c(rep(-2,(N-1)*N),log(c(0.005,0.04)),log(c(0.005,0.01)))
 
 # numerical maximization 
-mod.tort <- nlm(mllk.tort,theta.star,x=data,N=N,print.level=1,iterlim=500)
+mod.tort <- nlm(mllk.tort,theta.star,x=data,N=N,print.level=2,iterlim=500)
 theta.star.mle = mod.tort$estimate
 
 #back-transformation
@@ -90,8 +91,8 @@ Gamma <- diag(N)
 Gamma[!Gamma] <- exp(theta.star.mle[1:((N-1)*N)])
 Gamma <- Gamma/rowSums(Gamma)
 delta <- solve(t(diag(N)-Gamma+1),rep(1,N))
-mu.tort <- exp(theta.star.mle[(N-1)*N+1:N])
-sigma <- exp(theta.star.mle[(N-1)*N+(N+1):(2*N)])
+mu.tort <- cumsum(exp(theta.star.mle[(N-1)*N+1:N]))
+sigma <- cumsum(exp(theta.star.mle[(N-1)*N+(N+1):(2*N)]))
 
 round(Gamma, 4) #rounded
 mu.tort
@@ -102,10 +103,10 @@ delta
 #### 2-States HMM visualization ####
 # State dependent distributions
 hist(data$log.tort,probability=TRUE,breaks=500,col="light grey",xlab="log(tort)",main="State-dependent distributions", xlim= c(0,0.1))
-curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1]),add=TRUE,col="#E69F00", lwd=2)
-curve(delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="#56B4E9", lwd=2)
+curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1]),add=TRUE,col="#E69F00", lwd=2, n=1001)
+curve(delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="#56B4E9", lwd=2, n=1001)
 curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1])
-      +delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="black", lwd=2, lty=2)
+      +delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="black", lwd=2, lty=2, n=1001)
 colours <- c("#E69F00", "#56B4E9", "black")
 legend("topright", inset = c(0,0), legend= c("State 1","State 2","Sum of densities"), pch = 16, col=colours)
 
@@ -151,8 +152,8 @@ par(mfrow=c(1,1))
 
 ### dummy-covariate slick 
 mllk.slick <- function(theta.star,x){
-  mu.tort <- exp(theta.star[1:2])
-  sigma <- exp(theta.star[3:4])
+  mu.tort <- cumsum(exp(theta.star[1:2]))
+  sigma <- cumsum(exp(theta.star[3:4]))
   delta <- c(plogis(theta.star[5]),1-plogis(theta.star[5]))
   beta <- cbind(theta.star[6:7],theta.star[8:9])
   allprobs <- matrix(1,dim(x)[1],2)
@@ -190,8 +191,8 @@ theta.star <- c(log(mu.tort),log(sigma),qlogis(delta0), beta0, beta1)
 mod_slick <- nlm(mllk.slick,theta.star,x=data,print.level=2, iterlim=500)
 
 #back-transformation
-mu_slick <- exp(mod_slick$estimate[1:2])
-sigma_slick <- exp(mod_slick$estimate[3:4])
+mu_slick <- cumsum(exp(mod_slick$estimate[1:2]))
+sigma_slick <- cumsum(exp(mod_slick$estimate[3:4]))
 mu_slick
 sigma_slick
 
@@ -206,8 +207,8 @@ hist(data$inverse.tts)
 
 # 2-States HMM for time-to-slick
 mllk.tts <- function(theta.star,x){
-  mu.tort <- exp(theta.star[1:2])
-  sigma <- exp(theta.star[3:4])
+  mu.tort <- cumsum(exp(theta.star[1:2]))
+  sigma <- cumsum(exp(theta.star[3:4]))
   delta <- c(plogis(theta.star[5]),1-plogis(theta.star[5]))
   beta <- cbind(theta.star[6:7],theta.star[8:9])
   allprobs <- matrix(1,dim(x)[1],2)
@@ -241,8 +242,8 @@ theta.star <- c(log(mu.tort),log(sigma),qlogis(delta0), beta0, beta1)
 mod_tts <- nlm(mllk.tts,theta.star,x=data,print.level=2, iterlim=500)
 
 # back-transformation
-mu_tts <- exp(mod_tts$estimate[1:2])
-sigma_tts <- exp(mod_tts$estimate[3:4])
+mu_tts <- cumsum(exp(mod_tts$estimate[1:2]))
+sigma_tts <- cumsum(exp(mod_tts$estimate[3:4]))
 mu_tts
 sigma_tts
 
@@ -439,12 +440,13 @@ for(i in unique(data.resid.outlier$ID)){
 # H0: both models equally good
 # H1: the larger model is the better one
 ## LRT 2-states
-(-1)*2*mod_tts$minimum-(-1)*2*mod.tort$minimum
-qchisq(0.95,2) 
+(-1)*2*mod_tts$minimum-(-1)*2*mod.tort$minimum #16.39354
+qchisq(0.95,2) #5.991465
+# 16.39354 > 5.991465 -> H0 wird verworfen
 ## LRT 3-states
-(-1)*2*mod_tts3$minimum-(-1)*2*mod.tort3$minimum 
-qchisq(0.95,6) 
-
-
+(-1)*2*mod_tts3$minimum-(-1)*2*mod.tort3$minimum #389.1827
+qchisq(0.95,6) #12.59159
+# 389.1827 > 12.59159 -> H0 wird verworfen
+# Modell mit time-to-slick ist signifikant besser
 
 
