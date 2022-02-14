@@ -1,0 +1,23 @@
+## normales GLM
+mod1 <- glm(data$log.tort~data$inverse.tts,family=Gamma(link="log"))
+summary(mod1)
+
+
+## GLMM
+library(lme4)
+mod2 <- glmer(data$log.tort~data$inverse.tts+(data$inverse.tts|data$ID),
+             family=Gamma(link="log"))
+summary(mod2)
+
+
+## GLMM mit autokorrelierten Residuen
+library(MASS)
+#install.packages("nlme")
+library(nlme)
+attach(data)
+
+acf(log.tort, lag.max = 1, plot = FALSE)
+mod3 <- glmmPQL(log.tort~inverse.tts,random=~inverse.tts|ID,
+                family=Gamma(link="log"),
+                correlation=corAR1(0.933 ,form=~1|ID))
+summary(mod3)
