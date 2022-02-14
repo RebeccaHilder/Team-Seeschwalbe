@@ -440,13 +440,10 @@ for(i in unique(data.resid.outlier$ID)){
 # H0: both models equally good
 # H1: the larger model is the better one
 ## LRT 2-states
-(-1)*2*mod_tts$minimum-(-1)*2*mod.tort$minimum #16.39354
-qchisq(0.95,2) #5.991465
-# 16.39354 > 5.991465 -> H0 wird verworfen
+(-1)*2*mod_tts$minimum-(-1)*2*mod.tort$minimum
+qchisq(0.95,2) 
 ## LRT 3-states
-(-1)*2*mod_tts3$minimum-(-1)*2*mod.tort3$minimum #389.1827
-qchisq(0.95,6) #12.59159
-# 389.1827 > 12.59159 -> H0 wird verworfen
-# Modell mit time-to-slick ist signifikant besser
+(-1)*2*mod_tts3$minimum-(-1)*2*mod.tort3$minimum 
+qchisq(0.95,6) 
 
 
