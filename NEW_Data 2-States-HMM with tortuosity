@@ -426,7 +426,7 @@ acf(resids)
 
 #Time series of pseudo-residuals
 plot(resids)
-plot(resids, col=ifelse(resids>=4,"orange","black"), pch=ifelse(resids>=4,1,1))
+plot(resids, col=ifelse(resids>=4,"orange","black"))
 plot(resids , xlim = c(6000,12000))
 data.resid$residuals <- resids
 
