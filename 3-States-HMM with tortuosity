@@ -1,57 +1,64 @@
-#### Team-Seeschwalbe - Tortuosity
 
-#### Daten einlesen und bearbeiten ####
+########################################################### 
+#######  3-States HMM for seebirds with tortuosity  #######
+###########################################################                                                                               
+
+#### Import and edit data ####
 setwd("~/Uni/Lernstoff/Master/3. Semester/04 Statistical Consulting/Daten")
+#first dataset
 dat <- read.csv("slick2-h1-h2.csv")
 
-## Pakete laden
+## Load packages
 #install.packages("HiddenMarkov")
 library(HiddenMarkov)
 library(moveHMM)
 
-## Daten anzeigen
+## Overview
 View(dat)
 head(dat)
+table(dat$ID) # Number of observations per tern
+#which(dat$Freq >700) #which terns have more than 700 observations
+#sum(dat$Freq >700)   #how many terns have more than 700 observations
 
-## Anzahl der Beobachtungen pro Tern
-table(dat$ID)
+## Dataset only with terns that have >700 observation points
+# Create new column with frequency for 
+#data2 <- dat$ID
+#x <- data.frame(data2, freq=ave(seq_along(data2), data2, FUN=length))
+#dat$freq <- x$freq
+# New datatset
+#dat_700 <- subset(dat, dat$freq > 700)
 
-## neue Spalte im Datensatz erstellen mit der Frequency
-data2 <- dat$ID
-x <- data.frame(data2, freq=ave(seq_along(data2), data2, FUN=length))
-dat$freq <- x$freq
 
-#which(data_frame$Freq >400) #welche Terns haben mehr als 400 Beobachtungen
-#sum(data_frame$Freq >400) #wie viele Terns haben mehr als 400 Beobachtungen
+##For all data points:
+#High values must be changed
+which(dat$tortuosity==1)
+ind<-which(dat$tortuosity==1)
+dat$tortuosity[ind]<-rep(1.01,length(ind)) 
 
-##Für alle Datenpunkte:
-#which(data$tortuosity==1)
-#ind<-which(data$tortuosity==1)
-#data$tortuosity[ind]<-rep(0.01,length(ind))
 
-## Datensatz nur mit Terns, die >400 bzw. >700 Beobachtungspunkte besitzen
-#dat_400 <- subset(dat, dat$freq > 400)
-dat_700 <- subset(dat, dat$freq > 700)
+## Prepare data
+#data <- prepData(dat_700, type="UTM")
+data <- prepData(dat, type="UTM")
 
-## Daten aufbereiten
-data <- prepData(dat_700, type="UTM")
+## First overview of flight characteristics
+for(i in unique(data$ID)){
+  plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main=i,xlab="x",ylab="y",type="p", pch=20)
+}
 
-#### log(tortuosity) dem Datensatz beifügen ####
-
-## neue Spalte im Datensatz mit log von tortuosity
+#### Using log(tortuosity) ####
+## new column in dataset with log of tortuosity
 data$log.tort <- log(data$tortuosity)
 #View(data)
 
-
-#### fitting 3-States HMM with tortuosity####
+#### Fitting 3-States HMM with tortuosity####
 
 mllk.tort3 <- function(theta.star3, x, N){
   Gamma3 <- diag(N)  
   Gamma3[!Gamma3] <- exp(theta.star3[1:((N-1)*N)])
   Gamma3 <- Gamma3/rowSums(Gamma3) 
   delta3 <- solve(t(diag(N)-Gamma3+1),rep(1,N)) 
-  mu.tort3 <- exp(theta.star3[(N-1)*N+1:N])  #Mittelwert
-  sigma.tort3 <- exp(theta.star3[(N-1)*N+(N+1):(2*N)]) #Varianz
+  mu.tort3 <- cumsum(exp(theta.star3[(N-1)*N+1:N]))  #Mittelwert
+  sigma.tort3 <- cumsum(exp(theta.star3[(N-1)*N+(N+1):(2*N)])) #Varianz
   allprobs <- matrix(1,dim(x)[1],N)
   ind <- which(!is.na(x$log.tort)) 
   allprobs[ind,] <- cbind(dgamma(x$log.tort[ind], shape=mu.tort3[1]^2/sigma.tort3[1]^2, 
@@ -73,18 +80,22 @@ mllk.tort3 <- function(theta.star3, x, N){
 
 N=3
 
-# numerical maximization
+# Finding starting values
+hist(data$log.tort, breaks=400, main = "Histogram of log(tortuosity)", xlab = "log(tort)", xlim=c(0,0.1))
+# Starting values
 theta.star3 <- c(rep(-2,(N-1)*N),log(c(0.01,0.02,0.03)),log(c(0.005,0.01,0.02)))
-mod.tort3 <- nlm(mllk.tort3,theta.star3,x=data,N=N,print.level=1,iterlim=500)
+
+# numerical maximization 
+mod.tort3 <- nlm(mllk.tort3,theta.star3,x=data,N=N,print.level=1,iterlim=500, stepmax = 10)
 theta.star3.mle <- mod.tort3$estimate
 
-# back-transformation
+#back-transformation
 Gamma3 <- diag(N)
 Gamma3[!Gamma3] <- exp(theta.star3.mle[1:((N-1)*N)])
 Gamma3 <- Gamma3/rowSums(Gamma3)
 delta3 <- solve(t(diag(N)-Gamma3+1),rep(1,N))
-mu.tort3 <- exp(theta.star3.mle[(N-1)*N+1:N])
-sigma.tort3 <- exp(theta.star3.mle[(N-1)*N+(N+1):(2*N)])
+mu.tort3 <- cumsum(exp(theta.star3.mle[(N-1)*N+1:N]))
+sigma.tort3 <- cumsum(exp(theta.star3.mle[(N-1)*N+(N+1):(2*N)]))
 
 round(Gamma3, 4)
 mu.tort3
@@ -97,23 +108,24 @@ hist(data$log.tort, probability = TRUE, breaks = 500, col = "light grey", xlab =
      main = "State-dependent distributions", xlim = c(0,0.1))
 colours <- c("#E69F00", "#56B4E9", "#009E73", "black")
 curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
-                         scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colours[1], lwd = 2) 
+                         scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colours[1], lwd = 2 , n=1001) 
 curve(delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
-                         scale = sigma.tort3[2]^2/mu.tort3[2]), add = TRUE, col = colours[2], lwd = 2)
+                         scale = sigma.tort3[2]^2/mu.tort3[2]), add = TRUE, col = colours[2], lwd = 2 , n=1001)
 curve(delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
-                         scale = sigma.tort3[3]^2/mu.tort3[3]), add = TRUE, col = colours[3], lwd = 2)
+                         scale = sigma.tort3[3]^2/mu.tort3[3]), add = TRUE, col = colours[3], lwd = 2 , n=1001)
 curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2, 
                          scale = sigma.tort3[1]^2/mu.tort3[1])
       + delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
                            scale = sigma.tort3[2]^2/mu.tort3[2])
       + delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
                            scale = sigma.tort3[3]^2/mu.tort3[3]),
-      add = TRUE, col = colours[4], lwd = 2, lty = 2)
+      add = TRUE, col = colours[4], lwd = 2, lty = 2 , n=1001)
 legend("topright", inset = c(0,0), legend = c("State 1", "State 2", "State 3", "Marginal distribution"), 
        pch = 16, col = colours)
 
 
-#### 3-States HMM with speed global decoding ####
+#### Global decoding ####
+
 viterbi3 <- function(x,mu.tort3,sigma.tort3,Gamma3,delta3){
   n <- length(x)
   allprobs <- matrix(1,n,3)
@@ -139,7 +151,6 @@ viterbi3 <- function(x,mu.tort3,sigma.tort3,Gamma3,delta3){
   iv
 }
 
-#### Global decoding ####
 
 #pdf("3-States HMM tortuosity decoding.pdf", width = 8.27, height = 11.69)
 par(mfrow=c(2,1))
@@ -152,17 +163,18 @@ for(i in unique(data$ID)){
   plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], type = "p", 
        pch = 20, xlim = c(0,3000), ylim = c(0,1))
 }
-dev.off()
+par(mfrow=c(1,1))
+
+
 
 #### 3-States-HMM with covariates ####
 
-### dummy-covariate slick
-
+### dummy-covariate slick 
 mllk.slick3 <- function(theta.star,x){
-  mu.tort3 <- exp(theta.star[1:3])
-  sigma.tort3 <- exp(theta.star[4:6])
-  delta3 <- c(plogis(theta.star[7]),plogis(theta.star[8]),plogis(theta.star[9]))
-  beta3 <- cbind(theta.star[10:12],theta.star[13:15])
+  mu.tort3 <- cumsum(exp(theta.star[1:3]))
+  sigma.tort3 <- cumsum(exp(theta.star[4:6]))
+  delta3 <- c(1,exp(theta.star[7:8])/sum(c(1,exp(theta.star[7:8]))))
+  beta3 <- cbind(theta.star[9:14],theta.star[15:20])
   allprobs <- matrix(1,dim(x)[1],3)
   ind <- which(!is.na(x$log.tort)) # indices of non-missing step lengths
   allprobs[ind,] <- cbind(dgamma(x$log.tort[ind],shape=mu.tort3[1]^2/sigma.tort3[1]^2,scale=sigma.tort3[1]^2/mu.tort3[1]),
@@ -190,34 +202,37 @@ mllk.slick3 <- function(theta.star,x){
 N=3
 
 #starting values
-delta0 <- rep(1/3,1/3,1/3)
-# choose beta0 such that the diagonal elements of the resulting Gamma matrix will be highest (similar to starting values for gamma_ij)
+delta0 <- c(0,0)
 beta0 <- rep(-2,N*(N-1))
-# here my initial guess is that our covariate has no effect on the state process and hence I set all beta1 values to zero
 beta1 <- rep(0,N*(N-1))
 
-theta.star <- c(log(mu.tort3),log(sigma.tort3),qlogis(delta0), beta0, beta1)
-mod_slick3 <- nlm(mllk.slick3,theta.star,x=data,print.level=2, iterlim=500)
+# numerical maximization 
+#mu.tort3 <- c(0.086722511, 0.002752783 ,0.011802427)
+#sigma.tort3 <- c(0.086630512, 0.001734018, 0.004862065)
+theta.star <- c(log(mu.tort3), log(sigma.tort3), delta0, beta0, beta1)
+mod_slick3 <- nlm(mllk.slick3,theta.star,x=data,print.level=2, iterlim=500, stepmax = 10)
 
-# natural parameters
-mu_slick3 <- exp(mod_slick3$estimate[1:3])
-sigma_slick3 <- exp(mod_slick3$estimate[4:6])
+#back-transformation
+mu_slick3 <- cumsum(exp(mod_slick3$estimate[1:3]))
+sigma_slick3 <- cumsum(exp(mod_slick3$estimate[4:6]))
 mu_slick3
 sigma_slick3
 
 
 ### covariate time-to-slick
+
 # change NAs to infinity
 data$time_to_slick[is.na(data$time_to_slick)]<-Inf
-# new column with inverse of time-to-slick
+# new column with inverse of time-to-slick (proximity to slick)
 data$inverse.tts <- 1/(data$time_to_slick+1) # 1=near slick, 0=far away
 hist(data$inverse.tts)
 
+# 3-States HMM for time-to-slick
 mllk.tts3 <- function(theta.star,x){
-  mu.tort3 <- exp(theta.star[1:3])
-  sigma.tort3 <- exp(theta.star[4:6])
-  delta3 <- c(plogis(theta.star[7]),plogis(theta.star[8]),plogis(theta.star[9]))
-  beta3 <- cbind(theta.star[10:12],theta.star[13:15])
+  mu.tort3 <- cumsum(exp(theta.star[1:3]))
+  sigma.tort3 <- cumsum(exp(theta.star[4:6]))
+  delta3 <- c(1,exp(theta.star[7:8]))/sum(c(1,exp(theta.star[7:8])))
+  beta3 <- cbind(theta.star[9:14],theta.star[15:20])
   allprobs <- matrix(1,dim(x)[1],3)
   ind <- which(!is.na(x$log.tort)) # indices of non-missing step lengths
   allprobs[ind,] <- cbind(dgamma(x$log.tort[ind],shape=mu.tort3[1]^2/sigma.tort3[1]^2,scale=sigma.tort3[1]^2/mu.tort3[1]),
@@ -245,26 +260,28 @@ mllk.tts3 <- function(theta.star,x){
 N=3
 
 #starting values
-delta0 <- rep(1/3,1/3,1/3)
-# choose beta0 such that the diagonal elements of the resulting Gamma matrix will be highest (similar to starting values for gamma_ij)
+delta0 <- c(0,0)
 beta0 <- rep(-2,N*(N-1))
-# here my initial guess is that our covariate has no effect on the state process and hence I set all beta1 values to zero
 beta1 <- rep(0,N*(N-1))
 
-theta.star <- c(log(mu_slick3),log(sigma_slick3),qlogis(delta0), beta0, beta1)
-mod_tts3 <- nlm(mllk.tts3,theta.star,x=data,print.level=2, iterlim=500)
+# numerical maximization 
+theta.star <- c(log(mu_slick3), log(sigma_slick3), delta0, beta0, beta1)
+mod_tts3 <- nlm(mllk.tts3,theta.star,x=data,print.level=2, iterlim=500, stepmax = 10)
 
-# natural parameters
-mu_tts3 <- exp(mod_tts3$estimate[1:3])
-sigma_tts3 <- exp(mod_tts3$estimate[4:6])
+# back-transformation
+mu_tts3 <- cumsum(exp(mod_tts3$estimate[1:3]))
+sigma_tts3 <- cumsum(exp(mod_tts3$estimate[4:6]))
 mu_tts3
 sigma_tts3
-#back-transformation
-Gamma_tts3 <- diag(N)
-Gamma_tts3[!Gamma_tts3] <- exp(mod_tts3$estimate[1:((N-1)*N)])
-Gamma_tts3 <- Gamma_tts3/rowSums(Gamma_tts3)
-Gamma_tts3
-Gamma.tts3 <- Gamma_tts3
+
+#testing for global maximum
+#llks_tts <- rep(NA,10)
+#mods_tts <- vector("list")
+#for(k in 1:10){
+#  theta.star.tts <- c(sort(log(runif(3,0.001,0.07))),sort(log(runif(3,0.002,0.15))),0,0,rep(-2,6),rep(0,6))
+#  mods_tts[[k]] <- nlm(mllk.tts3,theta.star.tts,x=data,print.level=2)
+#  llks_tts[k] <- -mods_tts[[k]]$minimum
+#}
 
 
 #### Model selection ####
@@ -290,9 +307,9 @@ which.min(bic)
 
 #### Gamma Plots ####
 
-# Vorher Modell "covariate time-to-slick" des 2-HMM einlesen
+# Generate the 2-HMM with covariate "time-to-slick" first
 
-#Gamma für dummy Varibale erstellen
+# Create gamma for dummy varibale
 beta_slick3 <- cbind(mod_slick3$estimate[10:12],mod_slick3$estimate[13:15])
 eta3 <- beta_slick3[,1]+beta_slick3[,2]*0
 #eta3 <- beta_slick3[,1]+beta_slick3[,2]*1
@@ -301,19 +318,23 @@ Gamma_slick3[!Gamma_slick3] <- exp(eta3) # assign values to the off-diagonal ent
 Gamma_slick3 <- Gamma_slick3/rowSums(Gamma_slick3)
 Gamma_slick3
 
-#stationäre Verteilung
+# Stationary distribution
 delta3<-solve(t(diag(3)-Gamma_slick3+1),c(1,1,1))
 delta3
 
-#Manueller Vergleich
-Gamma.tts3
+# Comparison by hand
 Gamma3
+Gamma_slick3
 
-#betas definieren
-beta0_tts <- mod_tts3$estimate[10:12]
-beta1_tts <- mod_tts3$estimate[13:15]
+#Assign betas
+beta0_tts <- mod_tts3$estimate[9:14]
+beta1_tts <- mod_tts3$estimate[15:20]
 beta0_tts
 beta1_tts
+
+tts.seq <- seq(0,1, length = 1000)
+
+## Plots ##
 
 # changing prob 1 to 1 
 Gamma11 <- rep(NA,1000)
@@ -427,20 +448,13 @@ plot(Gamma32 ~ tts.seq, main = "Gamma32", ylab = "P(3->2)", xlab = "tts", ylim =
      type="l", lwd=5)
 plot(Gamma33 ~ tts.seq, main = "Gamma33", ylab = "P(3->3)", xlab = "tts", ylim = c(0.95,1), 
      type="l", lwd=5)
-dev.off()
+par(mfrow = c(1,1))
 
 
 #### model checking simulation####
-
-#delta<-solve(t(diag(2)-Gamma_slick+1),c(1,1))
-#delta
-delta3<-solve(t(diag(3)-Gamma_slick3+1),c(1,1,1))
-delta3
-
 set.seed(7265)
 n <- 20177
 x <- s <- rep(NA,n)
-#s[1] <- sample(1:2,size=1,prob=delta3)
 s[1] <- sample(1:3,size=1,prob=delta3)
 x[1] <- rgamma(1,shape=mu.tort3[s[1]]^2/sigma.tort3[s[1]]^2,scale=sigma.tort3[s[1]]^2/mu.tort3[s[1]])
 
@@ -449,10 +463,10 @@ for (t in 2:n){
   x[t] <- rgamma(1,shape=mu.tort3[s[t]]^2/sigma.tort3[s[t]]^2,scale=sigma.tort3[s[t]]^2/mu.tort3[s[t]])
 }
 
+# graphical comparison
 par(mfrow = c(1,2))
-# grafischer Vergleich
-hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #simulierte Daten
-hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #echte Daten
+hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Simulated data
+hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Emprical data
 
 
 #### model checking with pseudo residuals #####
@@ -461,9 +475,12 @@ d <- dthmm(data$log.tort, Gamma3, delta3, "gamma",
            list(shape=c(mu.tort3[1]^2/sigma.tort3[1]^2,mu.tort3[2]^2/sigma.tort3[2]^2,mu.tort3[3]^2/sigma.tort3[3]^2),
                 scale=c(sigma.tort3[1]^2/mu.tort3[1],sigma.tort3[2]^2/mu.tort3[2],sigma.tort3[3]^2/mu.tort3[3])))
 resids <- residuals(d)
-# auf Ausreißer untersuchen, da Q-Q-Plot nicht mit Inf-Werten funktioniert
-which(resids==Inf) #kommt bei 3-states nicht vor
 
+# check for outliers, cause Q-Q plot does not work with inf values
+which(resids==Inf) #no values with 3 states model
+
+
+##Plots
 #par(mfrow = c(2,2))
 
 #Histogram of pseudo-residuals
@@ -483,10 +500,8 @@ plot(resids)
 #ACF of the pseudo-residuals
 acf(resids)
 
-#dev.off()
+#par(mfrow = c(1,1))
 
-
-###Anhang Time series of pseudo-residuals für 2 States HMM
 #Time series of pseudo-residuals
 plot(resids)
 plot(resids, col=ifelse(resids>=4,"orange","black"), pch=ifelse(resids>=4,1,1))
@@ -497,17 +512,14 @@ which(resids>4)
 table(data[which(resids>4),]$ID)
 
 data.resid.outlier <- rbind(data[which(resids>4),])
-
-#dat$IDresiduals <- seq(1:63546)  #muss zu Beginn durchlaufen werden für Plot mit ID
-#plot(data.resid.outlier$residuals ~data.resid.outlier$IDresiduals)
 plot(data.resid.outlier$residuals)
 
-##Plot mit decoding für alle
+##Time series decoded for all residuals
 plot(data.resid.outlier$log.tort,xlab="time",ylab="log(tort)",col=colors[vitstates3],type="p", pch=20)#, ylim=c(0,1))
 legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colours)
 
-par(mfrow = c(2,2))
-##Plot mit decoding für jeden einzeln
+par(mfrow = c(2,4))
+##Time series decoded separately
 colors <- c("#E69F00", "#56B4E9", "#009E73")
 for(i in unique(data.resid.outlier$ID)){
   x=data.resid.outlier$log.tort[which(data.resid.outlier$ID==i)]
@@ -516,7 +528,7 @@ for(i in unique(data.resid.outlier$ID)){
   legend("bottomright", inset = c(0,0), legend= c("State 1","State 2", "State 3"), pch = 16, col=colours)
   
 }
-### Alle sind in State 1
+
 
 par(mfrow = c(2,2))
 
@@ -531,3 +543,5 @@ plot(x,xlab="time",ylab="log(tort)",main=i,col=colors[vitstates3],type="p",lwd=5
 legend("bottomright", inset = c(0,0), legend= c("State 1","State 2", "State 3"), pch = 16, col=colours)
   
 
+
+#### Likelohood-Ratio-Test ####
