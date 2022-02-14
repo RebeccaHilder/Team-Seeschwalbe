@@ -385,8 +385,18 @@ resids <- residuals(d)
 
 # check for outliers, cause Q-Q plot does not work with inf values
 which(resids==Inf)
-data.resid <- data[-12009,] #Remove outliers
-data.resid <- data.resid[-11997,] #Remove outliers
+# 17091, 17092, 17093, 17094, 17100, 48690, 48691, 53749, 53758, 53759
+#Remove outliers
+data.resid <- data[-17091,] # remove 17091
+data.resid <- data.resid[-17091,] # remove 17092
+data.resid <- data.resid[-17091,] # remove 17093
+data.resid <- data.resid[-17091,] # remove 17094
+data.resid <- data.resid[-17096,] # remove 17100
+data.resid <- data.resid[-48685,] # remove 48690
+data.resid <- data.resid[-48685,] # remove 48691
+data.resid <- data.resid[-53742,] # remove 53749
+data.resid <- data.resid[-53750,] # remove 53758
+data.resid <- data.resid[-53750,] # remove 53759
 
 # Redefine residuals
 d <- dthmm(data.resid$log.tort, Gamma, delta, "gamma", list(shape=c(mu.tort[1]^2/sigma[1]^2,mu.tort[2]^2/sigma[2]^2),scale=c(sigma[1]^2/mu.tort[1],sigma[2]^2/mu.tort[2])))
