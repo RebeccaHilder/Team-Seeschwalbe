@@ -436,7 +436,7 @@ table(data.resid[which(resids>4),]$ID)
 data.resid.outlier <- rbind(data.resid[which(resids>4),])
 plot(data.resid.outlier$residuals)
 
-##Time series decoded for all residuals
+##Time series decoded for log(tort) of all outliers
 plot(data.resid.outlier$log.tort,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, ylim=c(0,1))
 legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colours)
 
