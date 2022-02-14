@@ -246,7 +246,7 @@ beta1 <- rep(0,N*(N-1))
 
 # numerical maximization 
 theta.star <- c(log(mu.tort),log(sigma),qlogis(delta0), beta0, beta1)
-mod_tts <- nlm(mllk.tts,theta.star,x=data,print.level=2, iterlim=500)
+mod_tts <- nlm(mllk.tts,theta.star,x=data,print.level=2, iterlim=500, stepmax = 10)
 
 # back-transformation
 mu_tts <- cumsum(exp(mod_tts$estimate[1:2]))
@@ -374,8 +374,8 @@ for (t in 2:n){
 }
 
 # graphical comparison
-hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #simulierte Daten
-hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #echte Daten
+hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Simulated data
+hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Emprical data
 
 
 #### model checking with pseudo residuals #####
