@@ -10,9 +10,9 @@ dat <- read.csv("NEW_slick2-h1-h2.csv")
 # Recoding the first column name
 colnames(dat)[1] <- "ID"
 # Replace all values greater than 4 with NA
-T4 <-which(dat$time_to_slick>=4)
-dat$time_to_slick[T4]<- "NaN"
-table(dat$time_to_slick=="NaN")
+#T4 <-which(dat$time_to_slick>=4)
+#dat$time_to_slick[T4]<- "NaN"
+#table(dat$time_to_slick=="NaN")
 
 ## Load packages
 #install.packages("HiddenMarkov")
@@ -49,7 +49,7 @@ data <- prepData(dat, type="UTM")
 ## First overview of flight characteristics
 for(i in unique(data$ID)){
   plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main=i,xlab="x",ylab="y",type="p", pch=20)
-}
+} #Tern-h2-51 is amazing
 
 #### Using log(tortuosity) ####
 ## new column in dataset with log of tortuosity
@@ -357,7 +357,7 @@ plot(Gamma21 ~ tts.seq, main = "Gamma21", ylab = "P(2->1)", xlab = "tts", ylim =
      type="l", lwd=5)
 plot(Gamma22 ~ tts.seq, main = "Gamma22", ylab = "P(2->2)", xlab = "tts", ylim = c(0.95,1), 
      type="l", lwd=5)
-dev.off()
+par(mfrow = c(1,1))
 
 
 #### model checking simulation####
@@ -427,7 +427,6 @@ acf(resids)
 #Time series of pseudo-residuals
 plot(resids)
 plot(resids, col=ifelse(resids>=4,"orange","black"))
-plot(resids , xlim = c(6000,12000))
 data.resid$residuals <- resids
 
 which(resids>4)
@@ -457,10 +456,13 @@ for(i in unique(data.resid.outlier$ID)){
 # H0: both models equally good
 # H1: the larger model is the better one
 ## LRT 2-states
-(-1)*2*mod_tts$minimum-(-1)*2*mod.tort$minimum 
-qchisq(0.95,2)
+(-1)*2*mod_tts$minimum-(-1)*2*mod.tort$minimum #48.45055
+qchisq(0.95,2) #5.991465
+# 48.45055 > 5.991465 -> H0 wird verworfen
+# Modell mit time-to-slick ist signifikant besser
 ## LRT 3-states
-(-1)*2*mod_tts3$minimum-(-1)*2*mod.tort3$minimum
-qchisq(0.95,6)
-
+(-1)*2*mod_tts3$minimum-(-1)*2*mod.tort3$minimum #84.39718
+qchisq(0.95,6) #12.59159
+# 84.39718 > 12.59159 -> H0 wird verworfen
+# Modell mit time-to-slick ist signifikant besser
 
