@@ -38,7 +38,7 @@ dat_700 <- subset(dat, dat$freq > 700)
 
 
 ## Prepare data
-#data <- prepData(dat_700, type="UTM")
+data <- prepData(dat_700, type="UTM")
 #data <- prepData(dat, type="UTM")
 
 ## First overview of flight characteristics
@@ -83,7 +83,7 @@ hist(data$log.tort, breaks=400, main = "Histogram of log(tortuosity)", xlab = "l
 theta.star <- c(rep(-2,(N-1)*N),log(c(0.005,0.04)),log(c(0.005,0.01)))
 
 # numerical maximization 
-mod.tort <- nlm(mllk.tort,theta.star,x=data,N=N,print.level=2,iterlim=500)
+mod.tort <- nlm(mllk.tort,theta.star,x=data,N=N,print.level=2,iterlim=500, stepmax = 10)
 theta.star.mle = mod.tort$estimate
 
 #back-transformation
@@ -188,7 +188,7 @@ beta1 <- rep(0,N*(N-1))
 
 # numerical maximization 
 theta.star <- c(log(mu.tort),log(sigma),qlogis(delta0), beta0, beta1)
-mod_slick <- nlm(mllk.slick,theta.star,x=data,print.level=2, iterlim=500)
+mod_slick <- nlm(mllk.slick,theta.star,x=data,print.level=2, iterlim=500, stepmax = 10)
 
 #back-transformation
 mu_slick <- cumsum(exp(mod_slick$estimate[1:2]))
@@ -239,7 +239,7 @@ beta1 <- rep(0,N*(N-1))
 
 # numerical maximization 
 theta.star <- c(log(mu.tort),log(sigma),qlogis(delta0), beta0, beta1)
-mod_tts <- nlm(mllk.tts,theta.star,x=data,print.level=2, iterlim=500)
+mod_tts <- nlm(mllk.tts,theta.star,x=data,print.level=2, iterlim=500, stepmax = 10)
 
 # back-transformation
 mu_tts <- cumsum(exp(mod_tts$estimate[1:2]))
@@ -367,8 +367,8 @@ for (t in 2:n){
 }
 
 # graphical comparison
-hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #simulierte Daten
-hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #echte Daten
+hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Simulated data
+hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Emprical data
 
 
 #### model checking with pseudo residuals #####
