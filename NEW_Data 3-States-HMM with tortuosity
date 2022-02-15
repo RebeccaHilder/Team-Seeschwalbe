@@ -161,13 +161,13 @@ viterbi3 <- function(x,mu.tort3,sigma.tort3,Gamma3,delta3){
 
 #pdf("3-States HMM tortuosity decoding.pdf", width = 8.27, height = 11.69)
 par(mfrow=c(2,1))
-colours <- c("#E69F00", "#009E73", "#56B4E9")
+colors <- c("#E69F00", "#009E73", "#56B4E9")
 for(i in unique(data$ID)){
   x = data$log.tort[which(data$ID==i)]
   vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
   plot(data$y[which(data$ID==i)] ~ data$x[which(data$ID==i)], main=i,
-       xlab = "x", ylab = "y", col = colours[vitstates3], type = "p", pch = 20)
-  plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], type = "p", 
+       xlab = "x", ylab = "y", col = colors[vitstates3], type = "p", pch = 20)
+  plot(x, xlab = "time", ylab = "log(tort)", col = colors[vitstates3], type = "p", 
        pch = 20, xlim = c(0,3000), ylim = c(0,0.6))
 }
 par(mfrow=c(1,1))
