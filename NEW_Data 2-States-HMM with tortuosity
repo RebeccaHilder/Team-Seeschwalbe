@@ -469,9 +469,5 @@ for(i in unique(data.resid.outlier$ID)){
 qchisq(0.95,2) #5.991465
 # 48.45055 > 5.991465 -> reject H0
 # model, which includes time-to-slick, is significantly better
-## LRT 3-states
-(-1)*2*mod_tts3$minimum-(-1)*2*mod.tort3$minimum #84.39718
-qchisq(0.95,6) #12.59159
-# 84.39718 > 12.59159 -> reject H0 
-# model, which includes time-to-slick, is significantly better
+
 
