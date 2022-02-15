@@ -532,17 +532,17 @@ acf(resids)
 # Time series of pseudo-residuals
 plot(resids)
 plot(resids, col=ifelse(resids>=4,"orange","black"), pch=ifelse(resids>=4,1,1))
-data$residuals <- resids
+data.resid$residuals <- resids
 
 which(resids>4)
-table(data[which(resids>4),]$ID)
+table(data.resid[which(resids>4),]$ID)
 
-data.resid.outlier <- rbind(data[which(resids>4),])
+data.resid.outlier <- rbind(data.resid[which(resids>4),])
 plot(data.resid.outlier$residuals)
 
 ## Time series decoded for log(tort) of all outliers
 plot(data.resid.outlier$log.tort,xlab="time",ylab="log(tort)",col=colors[vitstates3],type="p", pch=20)#, ylim=c(0,1))
-legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colours)
+legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colors)
 
 par(mfrow = c(2,4))
 
@@ -552,7 +552,7 @@ for(i in unique(data.resid.outlier$ID)){
   x=data.resid.outlier$log.tort[which(data.resid.outlier$ID==i)]
   vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
   plot(x,xlab="time",ylab="log(tort)",main=i,col=colors[vitstates3],type="p",lwd=5, pch=20) # , ylim=c(0,2.5))
-  legend("bottomright", inset = c(0,0), legend= c("State 1","State 2", "State 3"), pch = 16, col=colours)
+  legend("bottomright", inset = c(0,0), legend= c("State 1","State 2", "State 3"), pch = 16, col=colors)
 }
 
 
