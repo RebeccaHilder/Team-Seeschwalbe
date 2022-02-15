@@ -5,7 +5,7 @@
 
 #### Import and edit data ####
 setwd("~/Uni/Lernstoff/Master/3. Semester/04 Statistical Consulting/Daten")
-#second dataset
+# New dataset
 dat <- read.csv("NEW_slick2-h1-h2.csv")
 # Recoding the first column name
 colnames(dat)[1] <- "ID"
@@ -88,11 +88,11 @@ hist(data$log.tort, breaks=1000, main = "Histogram of log(tortuosity)", xlab = "
 theta.star <- c(rep(-2,(N-1)*N),log(c(0.005,0.04)),log(c(0.01,0.04)))
 #theta.star <- c(rep(-2,(N-1)*N),log(c(0.01,0.006)),log(c(0.01,0.006)))
 
-# numerical maximization 
+# Numerical maximization 
 mod.tort <- nlm(mllk.tort,theta.star,x=data,N=N,print.level=2,iterlim=500, stepmax = 10)
 theta.star.mle = mod.tort$estimate
 
-#back-transformation
+# Back-transformation
 Gamma <- diag(N)
 Gamma[!Gamma] <- exp(theta.star.mle[1:((N-1)*N)])
 Gamma <- Gamma/rowSums(Gamma)
@@ -114,7 +114,7 @@ curve(delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2
 curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1])
       +delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="black", lwd=2, lty=2 , n=1001)
 colors <- c("#E69F00", "#56B4E9", "black")
-legend("topright", inset = c(0,0), legend= c("Flying/Hovering", "Foraging","Marginal distribution"), pch = 16, col=colors)
+legend("topright", inset = c(0,0), legend= c("State 1: Flying/Hovering", "State 2: Foraging","Marginal distribution"), pch = 16, col=colors)
 
 
 #### Global decoding ####
@@ -157,7 +157,7 @@ par(mfrow=c(1,1))
 
 #### 2-States-HMM with covariates ####
 
-### dummy-covariate slick 
+### Dummy-covariate slick 
 mllk.slick <- function(theta.star,x){
   mu.tort <- cumsum(exp(theta.star[1:2]))
   sigma <- cumsum(exp(theta.star[3:4]))
@@ -188,16 +188,16 @@ mllk.slick <- function(theta.star,x){
 
 N=2
 
-#starting values
+# Starting values
 delta0 <- 0.5
 beta0 <- rep(-2,N*(N-1))
 beta1 <- rep(0,N*(N-1))
 
-# numerical maximization 
+# Numerical maximization 
 theta.star <- c(log(mu.tort),log(sigma),qlogis(delta0), beta0, beta1)
 mod_slick <- nlm(mllk.slick,theta.star,x=data,print.level=2, iterlim=500, stepmax = 10)
 
-#back-transformation
+# Back-transformation
 #mu_slick <- exp(mod_slick$estimate[1:2])
 mu_slick <- cumsum(exp(mod_slick$estimate[1:2]))
 sigma_slick <- cumsum(exp(mod_slick$estimate[3:4]))
@@ -205,9 +205,9 @@ mu_slick
 sigma_slick
 
 
-### covariate time-to-slick
+### Covariate time-to-slick
 
-# change NAs to infinity
+# Change NAs to infinity
 data$time_to_slick[is.na(data$time_to_slick)]<-Inf
 # new column with inverse of time-to-slick
 data$inverse.tts <- 1/(data$time_to_slick+1) # 1=near slick, 0=far away
@@ -240,16 +240,16 @@ mllk.tts <- function(theta.star,x){
 
 N=2
 
-#starting values
+# Starting values
 delta0 <- 0.5
 beta0 <- rep(-2,N*(N-1))
 beta1 <- rep(0,N*(N-1))
 
-# numerical maximization 
+# Numerical maximization 
 theta.star <- c(log(mu.tort),log(sigma),qlogis(delta0), beta0, beta1)
 mod_tts <- nlm(mllk.tts,theta.star,x=data,print.level=2, iterlim=500, stepmax = 10)
 
-# back-transformation
+# Back-transformation
 mu_tts <- cumsum(exp(mod_tts$estimate[1:2]))
 sigma_tts <- cumsum(exp(mod_tts$estimate[3:4]))
 mu_tts
@@ -308,7 +308,7 @@ tts.seq <- seq(0,1, length = 1000)
 
 ## Plots ##
 
-# changing prob 1 to 1 
+# Changing prob 1 to 1 
 Gamma11 <- rep(NA,1000)
 for (k in 1:1000) {
   eta <- beta0_tts + beta1_tts*tts.seq[k]
@@ -317,7 +317,7 @@ for (k in 1:1000) {
   Gamma.tts <- Gamma.tts/rowSums(Gamma.tts)
   Gamma11[k] <- Gamma.tts[1,1]
 }
-# changing prob 2 to 2
+# Changing prob 2 to 2
 Gamma22 <- rep(NA,1000)
 tts.seq <- seq(0,1, length= 1000)
 for (k in 1:1000) {
@@ -327,7 +327,7 @@ for (k in 1:1000) {
   Gamma.tts <- Gamma.tts/rowSums(Gamma.tts)
   Gamma22[k] <- Gamma.tts[2,2]
 }
-# changing prob 1 to 2 
+# Changing prob 1 to 2 
 Gamma12 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -337,7 +337,7 @@ for (k in 1:1000) {
   Gamma.tts <- Gamma.tts/rowSums(Gamma.tts)
   Gamma12[k] <- Gamma.tts[1,2]
 }
-# changing prob 2 to 1 
+# Changing prob 2 to 1 
 Gamma21 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -348,7 +348,7 @@ for (k in 1:1000) {
   Gamma21[k] <- Gamma.tts[2,1]
 }
 
-# graphical illustration
+# Graphical illustration
 par(mfrow = c(2,2))
 plot(Gamma11 ~ tts.seq, main = "Gamma11", ylab = "P(1->1)", xlab = "tts", ylim = c(0.95,1), 
      type="l", lwd=5)
@@ -361,7 +361,7 @@ plot(Gamma22 ~ tts.seq, main = "Gamma22", ylab = "P(2->2)", xlab = "tts", ylim =
 par(mfrow = c(1,1))
 
 
-#### model checking simulation####
+#### Model checking with simulation####
 par(mfrow = c(1,2))
 set.seed(7265)
 n <- 20177
@@ -374,20 +374,20 @@ for (t in 2:n){
   x[t] <- rgamma(1,shape=mu.tort[s[t]]^2/sigma[s[t]]^2,scale=sigma[s[t]]^2/mu.tort[s[t]])
 }
 
-# graphical comparison
+# Graphical comparison
 hist(x,xlim=c(0,0.2),breaks=seq(0,3,length=200)) #Simulated data
 hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,3,length=200)) #Emprical data
 
 
-#### model checking with pseudo residuals #####
+#### Model checking with pseudo residuals #####
 
 d <- dthmm(data$log.tort, Gamma, delta, "gamma", list(shape=c(mu.tort[1]^2/sigma[1]^2,mu.tort[2]^2/sigma[2]^2),scale=c(sigma[1]^2/mu.tort[1],sigma[2]^2/mu.tort[2])))
 resids <- residuals(d)
 
-# check for outliers, cause Q-Q plot does not work with inf values
+# Check for outliers, cause Q-Q plot does not work with inf values
 which(resids==Inf)
 # 17091, 17092, 17093, 17094, 17100, 48690, 48691, 53749, 53758, 53759
-#Remove outliers
+# Remove outliers
 data.resid <- data[-17091,] # remove 17091
 data.resid <- data.resid[-17091,] # remove 17092
 data.resid <- data.resid[-17091,] # remove 17093
@@ -403,10 +403,10 @@ data.resid <- data.resid[-53750,] # remove 53759
 d <- dthmm(data.resid$log.tort, Gamma, delta, "gamma", list(shape=c(mu.tort[1]^2/sigma[1]^2,mu.tort[2]^2/sigma[2]^2),scale=c(sigma[1]^2/mu.tort[1],sigma[2]^2/mu.tort[2])))
 resids <- residuals(d)
 
-##Plots
+## Plots
 #par(mfrow = c(2,2))
 
-#Histogram of pseudo-residuals
+# Histogram of pseudo-residuals
 hist(resids, freq=F)
 m <- mean(resids)
 s <-  sd(resids)
@@ -417,15 +417,15 @@ curve(dnorm(x,m,s),add=TRUE,lwd=3, col="blue")
 qqnorm(resids)
 qqline(resids)
 
-#Time series of pseudo-residuals
+# Time series of pseudo-residuals
 plot(resids)
 
-#ACF of the pseudo-residuals
+# ACF of the pseudo-residuals
 acf(resids)
 
 #par(mfrow = c(1,1))
 
-#Time series of pseudo-residuals
+# Time series of pseudo-residuals
 plot(resids)
 plot(resids, col=ifelse(resids>=4,"darkred","black"))
 data.resid$residuals <- resids
@@ -436,12 +436,12 @@ table(data.resid[which(resids>4),]$ID)
 data.resid.outlier <- rbind(data.resid[which(resids>4),])
 plot(data.resid.outlier$residuals)
 
-##Time series decoded for log(tort) of all outliers
+## Time series decoded for log(tort) of all outliers
 vitstates2 <- viterbi(data.resid.outlier$log.tort,mu.tort,sigma,Gamma,delta)
 plot(data.resid.outlier$log.tort,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, ylim=c(0,1))
 legend("bottomright", inset = c(0,0), legend= c("Flying/Hovering", "Foraging"), pch = 16, col=colors)
 
-##Time series decoded separately
+## Time series decoded separately
 #"Tern-h2-58" and "Tern-h1-2" returns Error (only one point)
 table(data.resid.outlier$ID)
 T_h2_58 <- which(data.resid.outlier$ID=="Tern-h2-58")
