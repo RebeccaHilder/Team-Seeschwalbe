@@ -113,7 +113,7 @@ delta3
 #### 3-States HMM visualization ####
 hist(data$log.tort, probability = TRUE, breaks = 500, col = "light grey", xlab = "log(tort)",
      main = "State-dependent distributions", xlim = c(0,0.1))
-colours <- c("#E69F00", "#56B4E9", "#009E73", "black")
+colours <- c("#E69F00", "#009E73", "#56B4E9", "black")
 curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
                          scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colours[1], lwd = 2 , n=1001) 
 curve(delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
@@ -127,7 +127,7 @@ curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
       + delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
                            scale = sigma.tort3[3]^2/mu.tort3[3]),
       add = TRUE, col = colours[4], lwd = 2, lty = 2 , n=1001)
-legend("topright", inset = c(0,0), legend = c("State 1", "State 2", "State 3", "Marginal distribution"), 
+legend("topright", inset = c(0,0), legend = c("Flying/Hovering", "Searching", "Foraging", "Marginal distribution"), 
        pch = 16, col = colours)
 
 
@@ -161,16 +161,28 @@ viterbi3 <- function(x,mu.tort3,sigma.tort3,Gamma3,delta3){
 
 #pdf("3-States HMM tortuosity decoding.pdf", width = 8.27, height = 11.69)
 par(mfrow=c(2,1))
-colours <- c("#E69F00", "#56B4E9", "#009E73")
+colours <- c("#E69F00", "#009E73", "#56B4E9")
 for(i in unique(data$ID)){
   x = data$log.tort[which(data$ID==i)]
   vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
   plot(data$y[which(data$ID==i)] ~ data$x[which(data$ID==i)], main=i,
        xlab = "x", ylab = "y", col = colours[vitstates3], type = "p", pch = 20)
   plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], type = "p", 
-       pch = 20, xlim = c(0,3000), ylim = c(0,1))
+       pch = 20, xlim = c(0,3000), ylim = c(0,0.6))
 }
 par(mfrow=c(1,1))
+#dev.off()
+
+#for one animal
+i <- "Tern-h2-51"
+x = data$log.tort[which(data$ID==i)]
+vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
+plot(data$y[which(data$ID==i)] ~ data$x[which(data$ID==i)], main=i,
+     xlab = "x", ylab = "y", col = colours[vitstates3], type = "p", pch = 20)
+plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], main=i, type = "p", 
+     pch = 20, xlim = c(0,3000), ylim = c(0,1))
+#plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], main=i, type = "p", 
+#     pch = 20, xlim = c(0,3000), ylim = c(0,0.08))
 
 
 
@@ -534,7 +546,7 @@ legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col
 
 par(mfrow = c(2,4))
 ##Time series decoded separately
-colors <- c("#E69F00", "#56B4E9", "#009E73")
+colors <- c("#E69F00", "#009E73", "#56B4E9")
 for(i in unique(data.resid.outlier$ID)){
   x=data.resid.outlier$log.tort[which(data.resid.outlier$ID==i)]
   vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
