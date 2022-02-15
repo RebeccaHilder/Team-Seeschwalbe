@@ -5,7 +5,7 @@
 
 #### Import and edit data ####
 setwd("~/Uni/Lernstoff/Master/3. Semester/04 Statistical Consulting/Daten")
-#second dataset
+# New dataset
 dat <- read.csv("NEW_slick2-h1-h2.csv")
 # Recoding the first column name
 colnames(dat)[1] <- "ID"
@@ -35,7 +35,7 @@ table(dat$ID) # Number of observations per tern
 #dat_700 <- subset(dat, dat$freq > 700)
 
 
-##For all data points:
+## For all data points:
 #High values must be changed
 which(dat$tortuosity==1)
 ind<-which(dat$tortuosity==1)
@@ -92,11 +92,11 @@ hist(data$log.tort, breaks=1000, main = "Histogram of log(tortuosity)", xlab = "
 # Starting values
 theta.star3 <- c(rep(-2,(N-1)*N),log(c(0.01,0.02,0.03)),log(c(0.005,0.01,0.02)))
 
-# numerical maximization 
+# Numerical maximization 
 mod.tort3 <- nlm(mllk.tort3,theta.star3,x=data,N=N,print.level=2,iterlim=500, stepmax = 10)
 theta.star3.mle <- mod.tort3$estimate
 
-#back-transformation
+# Back-transformation
 Gamma3 <- diag(N)
 Gamma3[!Gamma3] <- exp(theta.star3.mle[1:((N-1)*N)])
 Gamma3 <- Gamma3/rowSums(Gamma3)
@@ -127,7 +127,7 @@ curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
       + delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
                            scale = sigma.tort3[3]^2/mu.tort3[3]),
       add = TRUE, col = colors[4], lwd = 2, lty = 2 , n=1001)
-legend("topright", inset = c(0,0), legend = c("Flying/Hovering", "Searching", "Foraging", "Marginal distribution"), 
+legend("topright", inset = c(0,0), legend = c("State 1: Flying", "State 2: Searching/Hovering", "State 3: Foraging", "Marginal distribution"), 
        pch = 16, col = colors)
 
 
@@ -173,7 +173,7 @@ for(i in unique(data$ID)){
 par(mfrow=c(1,1))
 #dev.off()
 
-#for one animal
+# For one animal (tern h2-51)
 i <- "Tern-h2-51"
 x = data$log.tort[which(data$ID==i)]
 vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
@@ -188,7 +188,7 @@ plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], main=i, ty
 
 #### 3-States-HMM with covariates ####
 
-### dummy-covariate slick 
+### Dummy-covariate slick 
 mllk.slick3 <- function(theta.star,x){
   mu.tort3 <- cumsum(exp(theta.star[1:3]))
   sigma.tort3 <- cumsum(exp(theta.star[4:6]))
@@ -220,27 +220,27 @@ mllk.slick3 <- function(theta.star,x){
 
 N=3
 
-#starting values
+# Starting values
 delta0 <- c(0,0)
 beta0 <- rep(-2,N*(N-1))
 beta1 <- rep(0,N*(N-1))
 
-# numerical maximization 
+# Numerical maximization 
 #mu.tort3 <- c(0.086722511, 0.002752783 ,0.011802427)
 #sigma.tort3 <- c(0.086630512, 0.001734018, 0.004862065)
 theta.star <- c(log(mu.tort3), log(sigma.tort3), delta0, beta0, beta1)
 mod_slick3 <- nlm(mllk.slick3,theta.star,x=data,print.level=2, iterlim=500, stepmax = 10)
 
-#back-transformation
+# Back-transformation
 mu_slick3 <- cumsum(exp(mod_slick3$estimate[1:3]))
 sigma_slick3 <- cumsum(exp(mod_slick3$estimate[4:6]))
 mu_slick3
 sigma_slick3
 
 
-### covariate time-to-slick
+### Covariate time-to-slick
 
-# change NAs to infinity
+# Change NAs to infinity
 data$time_to_slick[is.na(data$time_to_slick)]<-Inf
 # new column with inverse of time-to-slick (proximity to slick)
 data$inverse.tts <- 1/(data$time_to_slick+1) # 1=near slick, 0=far away
@@ -278,22 +278,22 @@ mllk.tts3 <- function(theta.star,x){
 
 N=3
 
-#starting values
+# Starting values
 delta0 <- c(0,0)
 beta0 <- rep(-2,N*(N-1))
 beta1 <- rep(0,N*(N-1))
 
-# numerical maximization 
+# Numerical maximization 
 theta.star <- c(log(mu_slick3), log(sigma_slick3), delta0, beta0, beta1)
 mod_tts3 <- nlm(mllk.tts3,theta.star,x=data,print.level=2, iterlim=500, stepmax = 10)
 
-# back-transformation
+# Back-transformation
 mu_tts3 <- cumsum(exp(mod_tts3$estimate[1:3]))
 sigma_tts3 <- cumsum(exp(mod_tts3$estimate[4:6]))
 mu_tts3
 sigma_tts3
 
-#testing for global maximum
+# Testing for global maximum
 #llks_tts <- rep(NA,10)
 #mods_tts <- vector("list")
 #for(k in 1:10){
@@ -345,7 +345,7 @@ delta3
 Gamma3
 Gamma_slick3
 
-#Assign betas
+# Assign betas
 beta0_tts <- mod_tts3$estimate[9:14]
 beta1_tts <- mod_tts3$estimate[15:20]
 beta0_tts
@@ -355,7 +355,7 @@ tts.seq <- seq(0,1, length = 1000)
 
 ## Plots ##
 
-# changing prob 1 to 1 
+# Changing prob 1 to 1 
 Gamma11 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -365,7 +365,7 @@ for (k in 1:1000) {
   Gamma.tts3 <- Gamma.tts3/rowSums(Gamma.tts3)
   Gamma11[k] <- Gamma.tts3[1,1]
 }
-# changing prob 2 to 2
+# Changing prob 2 to 2
 Gamma22 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -375,7 +375,7 @@ for (k in 1:1000) {
   Gamma.tts3 <- Gamma.tts3/rowSums(Gamma.tts3)
   Gamma22[k] <- Gamma.tts3[2,2]
 }
-# changing prob 3 to 3
+# Changing prob 3 to 3
 Gamma33 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -385,7 +385,7 @@ for (k in 1:1000) {
   Gamma.tts3 <- Gamma.tts3/rowSums(Gamma.tts3)
   Gamma33[k] <- Gamma.tts3[3,3]
 }
-# changing prob 1 to 2 
+# Changing prob 1 to 2 
 Gamma12 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -395,7 +395,7 @@ for (k in 1:1000) {
   Gamma.tts3 <- Gamma.tts3/rowSums(Gamma.tts3)
   Gamma12[k] <- Gamma.tts3[1,2]
 }
-# changing prob 1 to 3
+# Changing prob 1 to 3
 Gamma13 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -405,7 +405,7 @@ for (k in 1:1000) {
   Gamma.tts3 <- Gamma.tts3/rowSums(Gamma.tts3)
   Gamma13[k] <- Gamma.tts3[1,3]
 }
-# changing prob 2 to 1 
+# Changing prob 2 to 1 
 Gamma21 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -415,7 +415,7 @@ for (k in 1:1000) {
   Gamma.tts3 <- Gamma.tts3/rowSums(Gamma.tts3)
   Gamma21[k] <- Gamma.tts3[2,1]
 }
-# changing prob 2 to 3 
+# Changing prob 2 to 3 
 Gamma23 <- rep(NA,1000)
 slick.seq <- seq(0,1, length = 1000)
 tts.seq <- seq(0,1, length = 1000)
@@ -426,7 +426,7 @@ for (k in 1:1000) {
   Gamma.tts3 <- Gamma.tts3/rowSums(Gamma.tts3)
   Gamma23[k] <- Gamma.tts3[2,3]
 }
-# changing prob 3 to 1 
+# Changing prob 3 to 1 
 Gamma31 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -436,7 +436,7 @@ for (k in 1:1000) {
   Gamma.tts3 <- Gamma.tts3/rowSums(Gamma.tts3)
   Gamma31[k] <- Gamma.tts3[3,1]
 }
-# changing prob 3 to 2 
+# Changing prob 3 to 2 
 Gamma32 <- rep(NA,1000)
 tts.seq <- seq(0,1, length = 1000)
 for (k in 1:1000) {
@@ -447,7 +447,7 @@ for (k in 1:1000) {
   Gamma32[k] <- Gamma.tts3[3,2]
 }
 
-# graphical illustration
+# Graphical illustration
 par(mfrow = c(3,3))
 plot(Gamma11 ~ tts.seq, main = "Gamma11", ylab = "P(1->1)", xlab = "tts", ylim = c(0.95,1), 
      type="l", lwd=5)
@@ -470,7 +470,7 @@ plot(Gamma33 ~ tts.seq, main = "Gamma33", ylab = "P(3->3)", xlab = "tts", ylim =
 par(mfrow = c(1,1))
 
 
-#### model checking simulation####
+#### Model checking with simulation####
 set.seed(7265)
 n <- 20177
 x <- s <- rep(NA,n)
@@ -482,22 +482,22 @@ for (t in 2:n){
   x[t] <- rgamma(1,shape=mu.tort3[s[t]]^2/sigma.tort3[s[t]]^2,scale=sigma.tort3[s[t]]^2/mu.tort3[s[t]])
 }
 
-# graphical comparison
+# Graphical comparison
 par(mfrow = c(1,2))
 hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Simulated data
 hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Emprical data
 
 
-#### model checking with pseudo residuals #####
+#### Model checking with pseudo residuals #####
 
 d <- dthmm(data$log.tort, Gamma3, delta3, "gamma",
            list(shape=c(mu.tort3[1]^2/sigma.tort3[1]^2,mu.tort3[2]^2/sigma.tort3[2]^2,mu.tort3[3]^2/sigma.tort3[3]^2),
                 scale=c(sigma.tort3[1]^2/mu.tort3[1],sigma.tort3[2]^2/mu.tort3[2],sigma.tort3[3]^2/mu.tort3[3])))
 resids <- residuals(d)
 
-# check for outliers, cause Q-Q plot does not work with inf values
+# Check for outliers, because Q-Q plot does not work with INF values
 which(resids==Inf) #no values with 3 states model
-#Remove outliers
+# Remove outliers
 data.resid <- data[-17092,] # remove 17092
 data.resid <- data.resid[-17092,] # remove 17092 (Have to be repeated, cause numbering changes)
 
@@ -507,10 +507,10 @@ d <- dthmm(data.resid$log.tort, Gamma3, delta3, "gamma",
                 scale=c(sigma.tort3[1]^2/mu.tort3[1],sigma.tort3[2]^2/mu.tort3[2],sigma.tort3[3]^2/mu.tort3[3])))
 resids <- residuals(d)
 
-##Plots
+## Plots
 #par(mfrow = c(2,2))
 
-#Histogram of pseudo-residuals
+# Histogram of pseudo-residuals
 hist(resids, freq=F)
 m <- mean(resids)
 s <-  sd(resids)
@@ -521,15 +521,15 @@ curve(dnorm(x,m,s),add=TRUE,lwd=3, col="blue")
 qqnorm(resids)
 qqline(resids)
 
-#Time series of pseudo-residuals
+# Time series of pseudo-residuals
 plot(resids)
 
-#ACF of the pseudo-residuals
+# ACF of the pseudo-residuals
 acf(resids)
 
 #par(mfrow = c(1,1))
 
-#Time series of pseudo-residuals
+# Time series of pseudo-residuals
 plot(resids)
 plot(resids, col=ifelse(resids>=4,"orange","black"), pch=ifelse(resids>=4,1,1))
 data$residuals <- resids
@@ -540,19 +540,19 @@ table(data[which(resids>4),]$ID)
 data.resid.outlier <- rbind(data[which(resids>4),])
 plot(data.resid.outlier$residuals)
 
-##Time series decoded for log(tort) of all outliers
+## Time series decoded for log(tort) of all outliers
 plot(data.resid.outlier$log.tort,xlab="time",ylab="log(tort)",col=colors[vitstates3],type="p", pch=20)#, ylim=c(0,1))
 legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colours)
 
 par(mfrow = c(2,4))
-##Time series decoded separately
+
+## Time series decoded separately
 colors <- c("#E69F00", "#009E73", "#56B4E9")
 for(i in unique(data.resid.outlier$ID)){
   x=data.resid.outlier$log.tort[which(data.resid.outlier$ID==i)]
   vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
   plot(x,xlab="time",ylab="log(tort)",main=i,col=colors[vitstates3],type="p",lwd=5, pch=20) # , ylim=c(0,2.5))
   legend("bottomright", inset = c(0,0), legend= c("State 1","State 2", "State 3"), pch = 16, col=colours)
-  
 }
 
 
