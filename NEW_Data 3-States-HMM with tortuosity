@@ -113,22 +113,22 @@ delta3
 #### 3-States HMM visualization ####
 hist(data$log.tort, probability = TRUE, breaks = 500, col = "light grey", xlab = "log(tort)",
      main = "State-dependent distributions", xlim = c(0,0.1))
-colours <- c("#E69F00", "#009E73", "#56B4E9", "black")
+colors <- c("#E69F00", "#009E73", "#56B4E9", "black")
 curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
-                         scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colours[1], lwd = 2 , n=1001) 
+                         scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colors[1], lwd = 2 , n=1001) 
 curve(delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
-                         scale = sigma.tort3[2]^2/mu.tort3[2]), add = TRUE, col = colours[2], lwd = 2 , n=1001)
+                         scale = sigma.tort3[2]^2/mu.tort3[2]), add = TRUE, col = colors[2], lwd = 2 , n=1001)
 curve(delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
-                         scale = sigma.tort3[3]^2/mu.tort3[3]), add = TRUE, col = colours[3], lwd = 2 , n=1001)
+                         scale = sigma.tort3[3]^2/mu.tort3[3]), add = TRUE, col = colors[3], lwd = 2 , n=1001)
 curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2, 
                          scale = sigma.tort3[1]^2/mu.tort3[1])
       + delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
                            scale = sigma.tort3[2]^2/mu.tort3[2])
       + delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
                            scale = sigma.tort3[3]^2/mu.tort3[3]),
-      add = TRUE, col = colours[4], lwd = 2, lty = 2 , n=1001)
+      add = TRUE, col = colors[4], lwd = 2, lty = 2 , n=1001)
 legend("topright", inset = c(0,0), legend = c("Flying/Hovering", "Searching", "Foraging", "Marginal distribution"), 
-       pch = 16, col = colours)
+       pch = 16, col = colors)
 
 
 #### Global decoding ####
