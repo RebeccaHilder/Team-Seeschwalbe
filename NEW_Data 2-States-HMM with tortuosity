@@ -114,7 +114,7 @@ curve(delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2
 curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1])
       +delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="black", lwd=2, lty=2 , n=1001)
 colors <- c("#E69F00", "#56B4E9", "black")
-legend("topright", inset = c(0,0), legend= c("State 1","State 2","Sum of densities"), pch = 16, col=colors)
+legend("topright", inset = c(0,0), legend= c("Flying/Hovering", "Foraging","Sum of densities"), pch = 16, col=colors)
 
 
 #### Global decoding ####
@@ -149,9 +149,10 @@ for(i in unique(data$ID)){
   vitstates2 <- viterbi(x,mu.tort,sigma,Gamma,delta)
   plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main=i,xlab="x",ylab="y",col=colors[vitstates2],type="p", pch=20)
   plot(x,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, xlim=c(0,3000), ylim=c(0,1))
+  #plot(x,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, xlim=c(0,1000), ylim=c(0,0.5))
 }
+#dev.off()
 par(mfrow=c(1,1))
-
 
 
 #### 2-States-HMM with covariates ####
@@ -426,7 +427,7 @@ acf(resids)
 
 #Time series of pseudo-residuals
 plot(resids)
-plot(resids, col=ifelse(resids>=4,"orange","black"))
+plot(resids, col=ifelse(resids>=4,"darkred","black"))
 data.resid$residuals <- resids
 
 which(resids>4)
@@ -436,17 +437,25 @@ data.resid.outlier <- rbind(data.resid[which(resids>4),])
 plot(data.resid.outlier$residuals)
 
 ##Time series decoded for log(tort) of all outliers
+vitstates2 <- viterbi(data.resid.outlier$log.tort,mu.tort,sigma,Gamma,delta)
 plot(data.resid.outlier$log.tort,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, ylim=c(0,1))
-legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colours)
+legend("bottomright", inset = c(0,0), legend= c("Flying/Hovering", "Foraging"), pch = 16, col=colors)
 
-par(mfrow = c(2,4))
 ##Time series decoded separately
+#"Tern-h2-58" and "Tern-h1-2" returns Error (only one point)
+table(data.resid.outlier$ID)
+T_h2_58 <- which(data.resid.outlier$ID=="Tern-h2-58")
+data.resid.outlier <- data.resid.outlier[-261,] # remove 261
+T_h1_2 <- which(data.resid.outlier$ID=="Tern-h1-2")
+data.resid.outlier <- data.resid.outlier[-1,] # remove 1
+#plots
+par(mfrow = c(4,4))
 colors <- c("#E69F00", "#56B4E9")
 for(i in unique(data.resid.outlier$ID)){
   x=data.resid.outlier$log.tort[which(data.resid.outlier$ID==i)]
   vitstates2 <- viterbi(x,mu.tort,sigma,Gamma,delta)
   plot(x,xlab="time",ylab="log(tort)",main=i,col=colors[vitstates2],type="p",lwd=5, pch=20, ylim=c(0,1))
-  legend("bottomright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colours)
+  #legend("topright", inset = c(0,0), legend= c("Flying/Hovering", "Foraging"), pch = 16, col=colors)
   
 }
 
