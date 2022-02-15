@@ -114,7 +114,7 @@ curve(delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2
 curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1])
       +delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="black", lwd=2, lty=2 , n=1001)
 colors <- c("#E69F00", "#56B4E9", "black")
-legend("topright", inset = c(0,0), legend= c("Flying/Hovering", "Foraging","Sum of densities"), pch = 16, col=colors)
+legend("topright", inset = c(0,0), legend= c("Flying/Hovering", "Foraging","Marginal distribution"), pch = 16, col=colors)
 
 
 #### Global decoding ####
