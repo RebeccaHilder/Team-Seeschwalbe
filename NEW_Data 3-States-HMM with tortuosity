@@ -542,7 +542,7 @@ plot(data.resid.outlier$residuals)
 
 ## Time series decoded for log(tort) of all outliers
 plot(data.resid.outlier$log.tort,xlab="time",ylab="log(tort)",col=colors[vitstates3],type="p", pch=20)#, ylim=c(0,1))
-legend("topright", inset = c(0,0), legend= c("State 1","State 2"), pch = 16, col=colors)
+legend("topright", inset = c(0,0), legend= c("State 1","State 2", "State 3"), pch = 16, col=colors)
 
 par(mfrow = c(2,4))
 
