@@ -472,7 +472,7 @@ par(mfrow = c(1,1))
 
 #### Model checking with simulation####
 set.seed(7265)
-n <- 20177
+n <- 65181
 x <- s <- rep(NA,n)
 s[1] <- sample(1:3,size=1,prob=delta3)
 x[1] <- rgamma(1,shape=mu.tort3[s[1]]^2/sigma.tort3[s[1]]^2,scale=sigma.tort3[s[1]]^2/mu.tort3[s[1]])
