@@ -484,8 +484,8 @@ for (t in 2:n){
 
 # Graphical comparison
 par(mfrow = c(1,2))
-hist(x,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Simulated data
-hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,2.5,length=200)) #Emprical data
+hist(x,xlim=c(0,0.2),breaks=seq(0,3,length=200)) #Simulated data
+hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,3,length=200)) #Emprical data
 
 
 #### Model checking with pseudo residuals #####
