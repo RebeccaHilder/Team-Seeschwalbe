@@ -364,7 +364,7 @@ par(mfrow = c(1,1))
 #### Model checking with simulation####
 par(mfrow = c(1,2))
 set.seed(7265)
-n <- 20177
+n <- 65181
 x <- s <- rep(NA,n)
 s[1] <- sample(1:2,size=1,prob=delta)
 x[1] <- rgamma(1,shape=mu.tort[s[1]]^2/sigma[s[1]]^2,scale=sigma[s[1]]^2/mu.tort[s[1]])
@@ -375,8 +375,8 @@ for (t in 2:n){
 }
 
 # Graphical comparison
-hist(x,xlim=c(0,0.2),breaks=seq(0,3,length=200)) #Simulated data
-hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,3,length=200)) #Emprical data
+hist(x,xlim=c(0,0.2), ylim=c(0,50000),breaks=seq(0,3,length=200)) #Simulated data
+hist(data$log.tort,xlim=c(0,0.2),ylim = c(0,50000),breaks=seq(0,3,length=200)) #Emprical data
 
 
 #### Model checking with pseudo residuals #####
