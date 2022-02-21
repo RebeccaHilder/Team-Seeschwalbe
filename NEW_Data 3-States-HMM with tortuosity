@@ -563,7 +563,7 @@ for(i in unique(data$ID)){
   #i="Tern-h2-51"
   y = data$log.tort[which(data$ID==i)]
   vitstatesy <- viterbi3(y, mu.tort3, sigma.tort3, Gamma3, delta3)
-  plot(data$y[which(data$ID==i)] ~ data$x[which(data$ID==i)], main=i,
+  plot(data$y[which(data$ID==i)] ~ data$y[which(data$ID==i)], main=i,
        xlab = "x", ylab = "y", col = colors[vitstatesy], type = "p", pch = 20)
   data.resid.i <- data.resid[which(data.resid$ID==i),]
   data.resid.i$time <- seq(1,length(data.resid.i$log.tort))
