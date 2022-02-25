@@ -2,17 +2,75 @@
 #######      GLMM for seebirds with tortuosity      #######
 ###########################################################  
 
-## simple GLM
+###Prepare Data
+## Load packages
+library(HiddenMarkov)
+library(moveHMM)
+library(lme4)
+## Import and edit data 
+setwd("~/Uni/Lernstoff/Master/3. Semester/04 Statistical Consulting/Daten")
+# New dataset
+dat <- read.csv("NEW_slick2-h1-h2.csv")
+# Recoding the first column name
+colnames(dat)[1] <- "ID"
+#High values must be changed
+which(dat$tortuosity==1)
+ind<-which(dat$tortuosity==1)
+dat$tortuosity[ind]<-rep(1.01,length(ind)) 
+#prepData
+data <- prepData(dat, type="UTM")
+## new column in dataset with log of tortuosity
+data$log.tort <- log(data$tortuosity)
+# new column with inverse of time-to-slick (proximity to slick)
+data$time_to_slick[is.na(data$time_to_slick)]<-Inf  # Change NAs to infinity
+data$inverse.tts <- 1/(data$time_to_slick+1) # 1=near slick, 0=far away
+
+
+### simple GLM
 mod1 <- glm(data$log.tort~data$inverse.tts,family=Gamma(link="log"))
 summary(mod1)
+#Plot GLM
+plot(data$log.tort~data$inverse.tts) #, ylim= c(0,0.03))
+curve(exp(mod1$coeff[1]+mod1$coeff[2]*x), add=TRUE, col="red")
 
-
-## GLMM
-library(lme4)
+### GLMM
+#install.packages("lme4")
+#library(lme4)
 mod2 <- glmer(data$log.tort~data$inverse.tts+(data$inverse.tts|data$ID),
               family=Gamma(link="log"))
 summary(mod2)
+#Transfer to dataframe
+coeff <- data.frame(coef(mod2)[1])
+coeff$ID <- sort(unique(data$ID))
+colnames(coeff)[1] <- "Intercept"
+colnames(coeff)[2] <- "data$inverse.tts"
+colnames(coeff)[3] <- "ID"
+#Plot GLMM
+plot(data$log.tort~data$inverse.tts, ylim= c(0,0.5))
+for(i in 1:length(unique(data$ID))){
+  (curve(exp(coeff[i,1]+coeff[i,2]*x), col="red", add = T))
+}
 
+#Plot GLMM for all birds separately with freq over 1000
+par(mfrow=c(3,3))
+#IDs
+i= "Tern-h1-3"  
+i= "Tern-h2-14" 
+i= "Tern-h2-16" 
+i= "Tern-h2-17" 
+i= "Tern-h2-39"
+i= "Tern-h2-45" 
+i= "Tern-h2-50" 
+i= "Tern-h2-51" 
+i= "Tern-h2-70"
+#for(i in 1:length(unique(data$ID))){
+  plot(data$log.tort[which(data$ID==i)] ~ data$inverse.tts[which(data$ID==i)], main=i,
+       xlab = "inverse.tts", ylab = "log.tort", type = "p", pch = 20, ylim= c(0,0.5))
+  intercept <- coeff$Intercept[which(coeff$ID==i)]
+  slope <- coeff$`data$inverse.tts`[which(coeff$ID==i)]
+  curve(exp(intercept+slope*x), col="red", add = T)
+#}
+par(mfrow=c(1,1))
 
 ## GLMM with autocorrelated residuals
 library(MASS)
