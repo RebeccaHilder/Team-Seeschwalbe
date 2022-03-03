@@ -108,13 +108,26 @@ delta
 
 #### 2-States HMM visualization ####
 # State dependent distributions
-hist(data$log.tort,probability=TRUE,breaks=1000,col="light grey",xlab="log(tort)",main="State-dependent distributions", xlim= c(0,0.1))
+#hist(data$log.tort,probability=TRUE,breaks=1000,col="light grey",xlab="log(tort)",main="State-dependent distributions", xlim= c(0,0.1))
+hist(data$log.tort,probability=TRUE,breaks=1000,col="light grey",xlab="log(tort)",main="", xlim= c(0,0.1))
 curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1]),add=TRUE,col="#E69F00", lwd=2 , n=1001)
 curve(delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="#56B4E9", lwd=2 , n=1001)
 curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1])
       +delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="black", lwd=2, lty=2 , n=1001)
 colors <- c("#E69F00", "#56B4E9", "black")
 legend("topright", inset = c(0,0), legend= c("State 1: Flying/Hovering", "State 2: Foraging","Marginal distribution"), pch = 16, col=colors)
+
+#### 3-States HMM visualization for Report ####
+#par(mfrow=c(2,1))
+hist(data$log.tort, probability = TRUE, breaks = 2500, col = "light grey", xlab = "",
+     main = "",ylab="", xlim = c(0,0.1), ylim = c(0,120)) #main = "State-dependent distributions"
+title(main = "", cex.main = 2 , cex.lab = 1.5, xlab="log(tort)",ylab="Density")
+curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1]),add=TRUE,col="#E69F00", lwd=4 , n=1001)
+curve(delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="#56B4E9", lwd=4 , n=1001)
+curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1])
+      +delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="black", lwd=4, lty=2 , n=1001)
+colors <- c("#E69F00", "#56B4E9", "black")
+legend("topright", inset = c(0,0), legend= c("State 1: Flying/Hovering", "State 2: Foraging","Marginal distribution"), pch = 20, col=colors)
 
 
 #### Global decoding ####
@@ -145,10 +158,13 @@ viterbi <- function(x,mu.tort,sigma,Gamma,delta){
 par(mfrow=c(2,1))
 colors <- c("#E69F00", "#56B4E9")
 for(i in unique(data$ID)){
+  #i="Tern-h2-51"
   x=data$log.tort[which(data$ID==i)]
   vitstates2 <- viterbi(x,mu.tort,sigma,Gamma,delta)
-  plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main=i,xlab="x",ylab="y",col=colors[vitstates2],type="p", pch=20)
-  plot(x,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, xlim=c(0,3000), ylim=c(0,1))
+  plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main="",xlab="",ylab="",col=colors[vitstates2],type="p", pch=20)
+  title(main = i, cex.main = 2, cex.lab = 1.5, xlab="x",ylab="y")
+  plot(x,main="", xlab="",ylab="",col=colors[vitstates2],type="p", pch=20, , xlim = c(0,4330), ylim = c(0,0.08)) # xlim=c(0,3000), ylim=c(0,1))
+  title(main = i, cex.main = 2, cex.lab = 1.5, xlab="time",ylab="log(tort)")
   #plot(x,xlab="time",ylab="log(tort)",col=colors[vitstates2],type="p", pch=20, xlim=c(0,1000), ylim=c(0,0.5))
 }
 #dev.off()
@@ -295,8 +311,7 @@ delta<-solve(t(diag(2)-Gamma_slick+1),c(1,1))
 delta
 
 # Comparison by hand
-Gamma_slick
-Gamma
+Gamma_slick #with different eta
 
 #Assign betas
 beta0_tts <- mod_tts$estimate[6:7]
@@ -375,8 +390,11 @@ for (t in 2:n){
 }
 
 # Graphical comparison
-hist(x,xlim=c(0,0.2), ylim=c(0,50000),breaks=seq(0,3,length=200)) #Simulated data
-hist(data$log.tort,xlim=c(0,0.2),ylim = c(0,50000),breaks=seq(0,3,length=200)) #Emprical data
+par(mfrow = c(1,2))
+hist(x,xlim=c(0,0.2),breaks=seq(0,3,length=200), ylim = c(0,50000),main = "", xlab="",ylab="") #Simulated data
+title(main = "", cex.lab = 1.5, xlab="x",ylab="Frequency")
+hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,3,length=200),main = "", xlab="",ylab="") #Emprical data
+title(main = "", cex.lab = 1.5, xlab="log(tort)",ylab="Frequency")
 
 
 #### Model checking with pseudo residuals #####
@@ -418,7 +436,7 @@ qqnorm(resids)
 qqline(resids)
 
 # Time series of pseudo-residuals
-plot(resids)
+plot(resids, main="Residuals")
 
 # ACF of the pseudo-residuals
 acf(resids)
@@ -469,5 +487,4 @@ for(i in unique(data.resid.outlier$ID)){
 qchisq(0.95,2) #5.991465
 # 48.45055 > 5.991465 -> reject H0
 # model, which includes time-to-slick, is significantly better
-
 
