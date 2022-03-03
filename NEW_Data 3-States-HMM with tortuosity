@@ -33,7 +33,7 @@ table(dat$ID) # Number of observations per tern
 #dat$freq <- x$freq
 # New datatset
 #dat_700 <- subset(dat, dat$freq > 700)
-
+#unique(dat_700$ID)
 
 ## For all data points:
 #High values must be changed
@@ -48,7 +48,12 @@ data <- prepData(dat, type="UTM")
 
 ## First overview of flight characteristics
 for(i in unique(data$ID)){
-  plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main=i,xlab="x",ylab="y",type="p", pch=20)
+  #i="Tern-h2-51"
+  x = data$log.tort[which(data$ID==i)]
+  plot(data$y[which(data$ID==i)]~data$x[which(data$ID==i)],main="",xlab="",ylab="",type="p", pch=20)
+  title(main = i, cex.main = 2, cex.lab = 1.5, xlab="x",ylab="y")
+  plot(x, xlab = "", ylab = "", type = "p", main="", pch = 20, xlim = c(0,3000), ylim = c(0,0.6)) #xlim = c(0,4330)
+  title(main = i, cex.main = 2, cex.lab = 1.5, xlab="time",ylab="log(tort)")
 } 
 #Tern-h2-51 is amazing
 
@@ -112,7 +117,7 @@ delta3
 
 #### 3-States HMM visualization ####
 hist(data$log.tort, probability = TRUE, breaks = 500, col = "light grey", xlab = "log(tort)",
-     main = "State-dependent distributions", xlim = c(0,0.1))
+     main = "State-dependent distributions", xlim = c(0,0.1)) #main = "State-dependent distributions"
 colors <- c("#E69F00", "#009E73", "#56B4E9", "black")
 curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
                          scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colors[1], lwd = 2 , n=1001) 
@@ -129,6 +134,28 @@ curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
       add = TRUE, col = colors[4], lwd = 2, lty = 2 , n=1001)
 legend("topright", inset = c(0,0), legend = c("State 1: Flying", "State 2: Searching/Hovering", "State 3: Foraging", "Marginal distribution"), 
        pch = 16, col = colors)
+
+#### 3-States HMM visualization for Report ####
+#par(mfrow=c(2,1))
+hist(data$log.tort, probability = TRUE, breaks = 2500, col = "light grey", xlab = "",
+     main = "",ylab="", xlim = c(0,0.1), ylim = c(0,120)) #main = "State-dependent distributions"
+title(main = "", cex.main = 2 , cex.lab = 1.5, xlab="log(tort)",ylab="Density")
+colors <- c("#E69F00", "#009E73", "#56B4E9", "black")
+curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
+                         scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colors[1], lwd = 4 , n=1001) 
+curve(delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
+                         scale = sigma.tort3[2]^2/mu.tort3[2]), add = TRUE, col = colors[2], lwd = 4 , n=1001)
+curve(delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
+                         scale = sigma.tort3[3]^2/mu.tort3[3]), add = TRUE, col = colors[3], lwd = 4 , n=1001)
+curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2, 
+                         scale = sigma.tort3[1]^2/mu.tort3[1])
+      + delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
+                           scale = sigma.tort3[2]^2/mu.tort3[2])
+      + delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
+                           scale = sigma.tort3[3]^2/mu.tort3[3]),
+      add = TRUE, col = colors[4], lwd = 2, lty = 2 , n=1001)
+legend("topright", inset = c(0,0), legend = c("State 1: Flying", "State 2: Searching/Hovering", "State 3: Foraging", "Marginal distribution"), 
+       pch = 20, col = colors)
 
 
 #### Global decoding ####
@@ -163,24 +190,27 @@ viterbi3 <- function(x,mu.tort3,sigma.tort3,Gamma3,delta3){
 par(mfrow=c(2,1))
 colors <- c("#E69F00", "#009E73", "#56B4E9")
 for(i in unique(data$ID)){
+  #i="Tern-h2-51"
   x = data$log.tort[which(data$ID==i)]
   vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
-  plot(data$y[which(data$ID==i)] ~ data$x[which(data$ID==i)], main=i,
-       xlab = "x", ylab = "y", col = colors[vitstates3], type = "p", pch = 20)
-  plot(x, xlab = "time", ylab = "log(tort)", col = colors[vitstates3], type = "p", 
-       pch = 20, xlim = c(0,3000), ylim = c(0,0.6))
+  plot(data$y[which(data$ID==i)] ~ data$x[which(data$ID==i)], main="",
+       xlab = "", ylab = "", col = colors[vitstates3], type = "p", pch = 20)
+  title(main = i, cex.main = 2, cex.lab = 1.5, xlab="x",ylab="y")
+  plot(x, xlab = "", ylab = "", col = colors[vitstates3], type = "p", 
+       pch = 20, xlim = c(0,4330), ylim = c(0,0.08)) # #xlim = c(0,3000), ylim = c(0,0.6))
+  title(main = i, cex.main = 2, cex.lab = 1.5, xlab="time",ylab="log(tort)")
 }
 par(mfrow=c(1,1))
 #dev.off()
 
 # For one animal (tern h2-51)
-i <- "Tern-h2-51"
-x = data$log.tort[which(data$ID==i)]
-vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
-plot(data$y[which(data$ID==i)] ~ data$x[which(data$ID==i)], main=i,
-     xlab = "x", ylab = "y", col = colours[vitstates3], type = "p", pch = 20)
-plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], main=i, type = "p", 
-     pch = 20, xlim = c(0,3000), ylim = c(0,1))
+#i <- "Tern-h2-51"
+#x = data$log.tort[which(data$ID==i)]
+#vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
+#plot(data$y[which(data$ID==i)] ~ data$x[which(data$ID==i)], main=i,
+ #    xlab = "x", ylab = "y", col = colours[vitstates3], type = "p", pch = 20)
+#plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], main=i, type = "p", 
+  #   pch = 20, xlim = c(0,3000), ylim = c(0,1))
 #plot(x, xlab = "time", ylab = "log(tort)", col = colours[vitstates3], main=i, type = "p", 
 #     pch = 20, xlim = c(0,3000), ylim = c(0,0.08))
 
@@ -484,8 +514,10 @@ for (t in 2:n){
 
 # Graphical comparison
 par(mfrow = c(1,2))
-hist(x,xlim=c(0,0.2),breaks=seq(0,3,length=200)) #Simulated data
-hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,3,length=200)) #Emprical data
+hist(x,xlim=c(0,0.2),breaks=seq(0,3,length=200), ylim = c(0,50000),main = "", xlab="",ylab="") #Simulated data
+title(main = "", cex.lab = 1.5, xlab="x",ylab="Frequency")
+hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,3,length=200),main = "", xlab="",ylab="") #Emprical data
+title(main = "", cex.lab = 1.5, xlab="log(tort)",ylab="Frequency")
 
 
 #### Model checking with pseudo residuals #####
@@ -511,27 +543,31 @@ resids <- residuals(d)
 #par(mfrow = c(2,2))
 
 # Histogram of pseudo-residuals
-hist(resids, freq=F)
+hist(resids, freq=F,main = "", xlab="",ylab="")
+title(main = "", cex.lab = 1.5, xlab="resids",ylab="Density")
 m <- mean(resids)
 s <-  sd(resids)
 x <- resids
 curve(dnorm(x,m,s),add=TRUE,lwd=3, col="blue")
 
 # Normal Q-Q-Plot
-qqnorm(resids)
+qqnorm(resids,main = "", xlab="",ylab="")
+title(main = "", cex.lab = 1.5, xlab="Theoretical Quantiles",ylab="Sample Quantiles")
 qqline(resids)
 
 # Time series of pseudo-residuals
-plot(resids)
+plot(resids,main = "", xlab="",ylab="")
+title(main = "", cex.lab = 1.5, xlab="Index",ylab="resids")
 
 # ACF of the pseudo-residuals
-acf(resids)
+acf(resids,main = "", xlab="",ylab="")
+title(main = "", cex.lab = 1.5, xlab="Lag",ylab="ACF")
 
 #par(mfrow = c(1,1))
 
 # Time series of pseudo-residuals
 plot(resids)
-plot(resids, col=ifelse(resids>=4,"orange","black"), pch=ifelse(resids>=4,1,1))
+plot(resids, col=ifelse(resids>=4,"darkred","black"), pch=ifelse(resids>=4,1,1))
 data.resid$residuals <- resids
 
 which(resids>4)
@@ -547,12 +583,18 @@ legend("topright", inset = c(0,0), legend= c("State 1","State 2", "State 3"), pc
 par(mfrow = c(2,4))
 
 ## Time series decoded separately
+#"Tern-h2-48" and "Tern-h2-80" returns Error (only one point)
+table(data.resid.outlier$ID)
+T_h2_48 <- which(data.resid.outlier$ID=="Tern-h2-48")
+data.resid.outlier <- data.resid.outlier[-56,] # remove 56
+T_h2_80 <- which(data.resid.outlier$ID=="Tern-h2-80")
+data.resid.outlier <- data.resid.outlier[-92,] # remove 92
 colors <- c("#E69F00", "#009E73", "#56B4E9")
 for(i in unique(data.resid.outlier$ID)){
   x=data.resid.outlier$log.tort[which(data.resid.outlier$ID==i)]
   vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
-  plot(x,xlab="time",ylab="log(tort)",main=i,col=colors[vitstates3],type="p",lwd=5, pch=20) # , ylim=c(0,2.5))
-  legend("bottomright", inset = c(0,0), legend= c("State 1","State 2", "State 3"), pch = 16, col=colors)
+  plot(x,xlab="time",ylab="log(tort)",main=i,col=colors[vitstates3],type="p",lwd=5, pch=20, ylim=c(0,2.6)) 
+  #legend("bottomright", inset = c(0,0), legend= c("State 1","State 2", "State 3"), pch = 16, col=colors)
 }
 
 ## Colored outliers in decoded Tracks
@@ -560,7 +602,6 @@ for(i in unique(data.resid.outlier$ID)){
 par(mfrow=c(2,1))
 colors <- c("#E69F00", "#009E73", "#56B4E9")
 for(i in unique(data$ID)){
-  #i="Tern-h2-51"
   y = data$log.tort[which(data$ID==i)]
   vitstatesy <- viterbi3(y, mu.tort3, sigma.tort3, Gamma3, delta3)
   plot(data$y[which(data$ID==i)] ~ data$y[which(data$ID==i)], main=i,
@@ -590,4 +631,3 @@ par(mfrow=c(1,1))
 qchisq(0.95,6) #12.59159
 # 84.39718 > 12.59159 -> reject H0
 # model, which includes time-to-slick, is significantly better
-
