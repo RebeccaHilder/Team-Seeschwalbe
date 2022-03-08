@@ -36,7 +36,7 @@ table(dat$ID) # Number of observations per tern
 #unique(dat_700$ID)
 
 ## For all data points:
-#High values must be changed
+# High values must be changed
 which(dat$tortuosity==1)
 ind<-which(dat$tortuosity==1)
 dat$tortuosity[ind]<-rep(1.01,length(ind)) 
@@ -55,14 +55,13 @@ for(i in unique(data$ID)){
   plot(x, xlab = "", ylab = "", type = "p", main="", pch = 20, xlim = c(0,3000), ylim = c(0,0.6)) #xlim = c(0,4330)
   title(main = i, cex.main = 2, cex.lab = 1.5, xlab="time",ylab="log(tort)")
 } 
-#Tern-h2-51 is amazing
 
 #### Using log(tortuosity) ####
 ## new column in dataset with log of tortuosity
 data$log.tort <- log(data$tortuosity)
 #View(data)
 
-#### Fitting 3-States HMM with tortuosity####
+#### Fitting 3-States HMM with tortuosity ####
 
 mllk.tort3 <- function(theta.star3, x, N){
   Gamma3 <- diag(N)  
@@ -135,7 +134,7 @@ curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
 legend("topright", inset = c(0,0), legend = c("State 1: Flying", "State 2: Searching/Hovering", "State 3: Foraging", "Marginal distribution"), 
        pch = 16, col = colors)
 
-#### 3-States HMM visualization for Report ####
+#### 3-States HMM visualization ####
 #par(mfrow=c(2,1))
 hist(data$log.tort, probability = TRUE, breaks = 2500, col = "light grey", xlab = "",
      main = "",ylab="", xlim = c(0,0.1), ylim = c(0,120)) #main = "State-dependent distributions"
@@ -203,7 +202,7 @@ for(i in unique(data$ID)){
 par(mfrow=c(1,1))
 #dev.off()
 
-# For one animal (tern h2-51)
+# For one animal ("Tern-h2-51")
 #i <- "Tern-h2-51"
 #x = data$log.tort[which(data$ID==i)]
 #vitstates3 <- viterbi3(x, mu.tort3, sigma.tort3, Gamma3, delta3)
@@ -218,7 +217,7 @@ par(mfrow=c(1,1))
 
 #### 3-States-HMM with covariates ####
 
-### Dummy-covariate slick 
+### Dummy-covariate "slick" 
 mllk.slick3 <- function(theta.star,x){
   mu.tort3 <- cumsum(exp(theta.star[1:3]))
   sigma.tort3 <- cumsum(exp(theta.star[4:6]))
@@ -268,7 +267,7 @@ mu_slick3
 sigma_slick3
 
 
-### Covariate time-to-slick
+### Covariate "time-to-slick"
 
 # Change NAs to infinity
 data$time_to_slick[is.na(data$time_to_slick)]<-Inf
@@ -276,7 +275,7 @@ data$time_to_slick[is.na(data$time_to_slick)]<-Inf
 data$inverse.tts <- 1/(data$time_to_slick+1) # 1=near slick, 0=far away
 hist(data$inverse.tts)
 
-# 3-States HMM for time-to-slick
+# 3-States HMM for "time-to-slick"
 mllk.tts3 <- function(theta.star,x){
   mu.tort3 <- cumsum(exp(theta.star[1:3]))
   sigma.tort3 <- cumsum(exp(theta.star[4:6]))
@@ -354,26 +353,28 @@ bic
 which.min(bic)
 
 
-#### Gamma Plots ####
+#### Gamma plots ####
 
 # Generate the 2-HMM with covariate "time-to-slick" first
 
-# Create gamma for dummy varibale
-beta_slick3 <- cbind(mod_slick3$estimate[9:14],mod_slick3$estimate[15:20])
-eta3 <- beta_slick3[,1]+beta_slick3[,2]*0
-#eta3 <- beta_slick3[,1]+beta_slick3[,2]*1
-Gamma_slick3 <- diag(3)
-Gamma_slick3[!Gamma_slick3] <- exp(eta3) # assign values to the off-diagonal entries of the Gamma-matrix
-Gamma_slick3 <- Gamma_slick3/rowSums(Gamma_slick3)
-Gamma_slick3
+# Create gamma for dummy varibale "slick"
+beta_slick <- cbind(mod_slick$estimate[6:7],mod_slick$estimate[8:9])
+eta <- beta_slick[,1]+beta_slick[,2]*0   # without tts
+Gamma_slick <- diag(2)
+Gamma_slick[!Gamma_slick] <- exp(eta) 
+Gamma_slick <- Gamma_slick/rowSums(Gamma_slick)
+Gamma_slick
+eta1 <- beta_slick[,1]+beta_slick[,2]*1  # with tts
+Gamma_slick1 <- diag(2)
+Gamma_slick1[!Gamma_slick1] <- exp(eta1) 
+Gamma_slick1 <- Gamma_slick1/rowSums(Gamma_slick1)
+Gamma_slick1
 
 # Stationary distribution
-delta3<-solve(t(diag(3)-Gamma_slick3+1),c(1,1,1))
-delta3
-
-# Comparison by hand
-Gamma3
-Gamma_slick3
+delta<-solve(t(diag(2)-Gamma_slick+1),c(1,1))
+delta
+delta1 <- solve(t(diag(2)-Gamma_slick1+1),c(1,1))
+delta1
 
 # Assign betas
 beta0_tts <- mod_tts3$estimate[9:14]
@@ -500,7 +501,7 @@ plot(Gamma33 ~ tts.seq, main = "Gamma33", ylab = "P(3->3)", xlab = "tts", ylim =
 par(mfrow = c(1,1))
 
 
-#### Model checking with simulation####
+#### Model checking with simulation ####
 set.seed(7265)
 n <- 65181
 x <- s <- rep(NA,n)
@@ -520,7 +521,7 @@ hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,3,length=200),main = "", xlab="",y
 title(main = "", cex.lab = 1.5, xlab="log(tort)",ylab="Frequency")
 
 
-#### Model checking with pseudo residuals #####
+#### Model checking with pseudo-residuals #####
 
 d <- dthmm(data$log.tort, Gamma3, delta3, "gamma",
            list(shape=c(mu.tort3[1]^2/sigma.tort3[1]^2,mu.tort3[2]^2/sigma.tort3[2]^2,mu.tort3[3]^2/sigma.tort3[3]^2),
@@ -622,12 +623,13 @@ par(mfrow=c(1,1))
 #dev.off()
 
 
-#### Likelohood-Ratio-Test ####
+#### Likelihood-ratio test ####
 
 # H0: both models equally good
 # H1: the larger model is the better one
-## LRT 3-states
+# test statistic:
 (-1)*2*mod_tts3$minimum-(-1)*2*mod.tort3$minimum #84.39718
+# chi-squared distribution:
 qchisq(0.95,6) #12.59159
 # 84.39718 > 12.59159 -> reject H0
-# model, which includes time-to-slick, is significantly better
+# model, which includes "time-to-slick", is significantly better
