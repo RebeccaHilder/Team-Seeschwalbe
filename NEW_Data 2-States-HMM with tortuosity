@@ -300,18 +300,25 @@ which.min(bic)
 # Create gamma for dummy varibale
 beta_slick <- cbind(mod_slick$estimate[6:7],mod_slick$estimate[8:9])
 eta <- beta_slick[,1]+beta_slick[,2]*0   # without tts
-#eta <- beta_slick[,1]+beta_slick[,2]*1  # with tts
 Gamma_slick <- diag(2)
 Gamma_slick[!Gamma_slick] <- exp(eta) 
 Gamma_slick <- Gamma_slick/rowSums(Gamma_slick)
 Gamma_slick
+eta1 <- beta_slick[,1]+beta_slick[,2]*1  # with tts
+Gamma_slick1 <- diag(2)
+Gamma_slick1[!Gamma_slick1] <- exp(eta1) 
+Gamma_slick1 <- Gamma_slick1/rowSums(Gamma_slick1)
+Gamma_slick1
 
 # Stationary distribution
 delta<-solve(t(diag(2)-Gamma_slick+1),c(1,1))
 delta
+delta1 <- solve(t(diag(2)-Gamma_slick1+1),c(1,1))
+delta1
 
 # Comparison by hand
-Gamma_slick #with different eta
+Gamma_slick
+Gamma_slick1
 
 #Assign betas
 beta0_tts <- mod_tts$estimate[6:7]
