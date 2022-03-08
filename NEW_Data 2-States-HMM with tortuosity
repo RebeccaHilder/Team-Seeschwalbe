@@ -35,8 +35,8 @@ table(dat$ID) # Number of observations per tern
 #dat_700 <- subset(dat, dat$freq > 700)
 
 
-##For all data points:
-#High values must be changed
+## For all data points:
+# High values must be changed
 which(dat$tortuosity==1)
 ind<-which(dat$tortuosity==1)
 dat$tortuosity[ind]<-rep(1.01,length(ind)) 
@@ -52,11 +52,11 @@ for(i in unique(data$ID)){
 } #Tern-h2-51 is amazing
 
 #### Using log(tortuosity) ####
-## new column in dataset with log of tortuosity
+## New column in dataset with log of tortuosity
 data$log.tort <- log(data$tortuosity)
 #View(data)
 
-#### Fitting 2-States HMM with tortuosity####
+#### Fitting 2-States HMM with tortuosity ####
 
 mllk.tort <- function(theta.star, x, N){
   Gamma <- diag(N)  
@@ -100,7 +100,7 @@ delta <- solve(t(diag(N)-Gamma+1),rep(1,N))
 mu.tort <- cumsum(exp(theta.star.mle[(N-1)*N+1:N]))
 sigma <- cumsum(exp(theta.star.mle[(N-1)*N+(N+1):(2*N)]))
 
-round(Gamma, 4) #rounded
+round(Gamma, 4)
 mu.tort
 sigma
 delta
@@ -117,7 +117,7 @@ curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1
 colors <- c("#E69F00", "#56B4E9", "black")
 legend("topright", inset = c(0,0), legend= c("State 1: Flying/Hovering", "State 2: Foraging","Marginal distribution"), pch = 16, col=colors)
 
-#### 3-States HMM visualization for Report ####
+#### 3-States HMM visualization ####
 #par(mfrow=c(2,1))
 hist(data$log.tort, probability = TRUE, breaks = 2500, col = "light grey", xlab = "",
      main = "",ylab="", xlim = c(0,0.1), ylim = c(0,120)) #main = "State-dependent distributions"
@@ -173,7 +173,7 @@ par(mfrow=c(1,1))
 
 #### 2-States-HMM with covariates ####
 
-### Dummy-covariate slick 
+### Dummy-covariate "slick" 
 mllk.slick <- function(theta.star,x){
   mu.tort <- cumsum(exp(theta.star[1:2]))
   sigma <- cumsum(exp(theta.star[3:4]))
@@ -221,7 +221,7 @@ mu_slick
 sigma_slick
 
 
-### Covariate time-to-slick
+### Covariate "time-to-slick"
 
 # Change NAs to infinity
 data$time_to_slick[is.na(data$time_to_slick)]<-Inf
@@ -297,7 +297,7 @@ which.min(bic)
 
 # Generate the 2-HMM with covariate "time-to-slick" first
 
-# Create gamma for dummy varibale
+# Create gamma for dummy varibale "slick"
 beta_slick <- cbind(mod_slick$estimate[6:7],mod_slick$estimate[8:9])
 eta <- beta_slick[,1]+beta_slick[,2]*0   # without tts
 Gamma_slick <- diag(2)
@@ -316,10 +316,6 @@ delta
 delta1 <- solve(t(diag(2)-Gamma_slick1+1),c(1,1))
 delta1
 
-# Comparison by hand
-Gamma_slick
-Gamma_slick1
-
 #Assign betas
 beta0_tts <- mod_tts$estimate[6:7]
 beta1_tts <- mod_tts$estimate[8:9]
@@ -328,7 +324,7 @@ beta1_tts
 
 tts.seq <- seq(0,1, length = 1000)
 
-## Plots ##
+## Gamma plots ##
 
 # Changing prob 1 to 1 
 Gamma11 <- rep(NA,1000)
@@ -383,7 +379,7 @@ plot(Gamma22 ~ tts.seq, main = "Gamma22", ylab = "P(2->2)", xlab = "tts", ylim =
 par(mfrow = c(1,1))
 
 
-#### Model checking with simulation####
+#### Model checking with simulation ####
 par(mfrow = c(1,2))
 set.seed(7265)
 n <- 65181
@@ -404,7 +400,7 @@ hist(data$log.tort,xlim=c(0,0.2),breaks=seq(0,3,length=200),main = "", xlab="",y
 title(main = "", cex.lab = 1.5, xlab="log(tort)",ylab="Frequency")
 
 
-#### Model checking with pseudo residuals #####
+#### Model checking with pseudo-residuals #####
 
 d <- dthmm(data$log.tort, Gamma, delta, "gamma", list(shape=c(mu.tort[1]^2/sigma[1]^2,mu.tort[2]^2/sigma[2]^2),scale=c(sigma[1]^2/mu.tort[1],sigma[2]^2/mu.tort[2])))
 resids <- residuals(d)
@@ -485,12 +481,13 @@ for(i in unique(data.resid.outlier$ID)){
 }
 
 
-#### Likelohood-Ratio-Test ####
+#### Likelohood-ratio test ####
 
 # H0: both models equally good
 # H1: the larger model is the better one
-## LRT 2-states
+# test statistic:
 (-1)*2*mod_tts$minimum-(-1)*2*mod.tort$minimum #48.45055
+# chi-squared distribution:
 qchisq(0.95,2) #5.991465
 # 48.45055 > 5.991465 -> reject H0
 # model, which includes time-to-slick, is significantly better
