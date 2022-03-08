@@ -229,7 +229,7 @@ data$time_to_slick[is.na(data$time_to_slick)]<-Inf
 data$inverse.tts <- 1/(data$time_to_slick+1) # 1=near slick, 0=far away
 hist(data$inverse.tts)
 
-# 2-States HMM for time-to-slick
+# 2-States HMM for "time-to-slick"
 mllk.tts <- function(theta.star,x){
   mu.tort <- cumsum(exp(theta.star[1:2]))
   sigma <- cumsum(exp(theta.star[3:4]))
@@ -481,7 +481,7 @@ for(i in unique(data.resid.outlier$ID)){
 }
 
 
-#### Likelohood-ratio test ####
+#### Likelihood-ratio test ####
 
 # H0: both models equally good
 # H1: the larger model is the better one
@@ -490,5 +490,5 @@ for(i in unique(data.resid.outlier$ID)){
 # chi-squared distribution:
 qchisq(0.95,2) #5.991465
 # 48.45055 > 5.991465 -> reject H0
-# model, which includes time-to-slick, is significantly better
+# model, which includes "time-to-slick", is significantly better
 
