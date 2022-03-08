@@ -131,7 +131,7 @@ curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
       + delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
                            scale = sigma.tort3[3]^2/mu.tort3[3]),
       add = TRUE, col = colors[4], lwd = 2, lty = 2 , n=1001)
-legend("topright", inset = c(0,0), legend = c("State 1: Flying", "State 2: Searching/Hovering", "State 3: Foraging", "Marginal distribution"), 
+legend("topright", inset = c(0,0), legend = c("State 1: flying", "State 2: searching", "State 3: hovering/foraging", "Marginal distribution"), 
        pch = 16, col = colors)
 
 #### 3-States HMM visualization ####
@@ -153,7 +153,7 @@ curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
       + delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
                            scale = sigma.tort3[3]^2/mu.tort3[3]),
       add = TRUE, col = colors[4], lwd = 2, lty = 2 , n=1001)
-legend("topright", inset = c(0,0), legend = c("State 1: Flying", "State 2: Searching/Hovering", "State 3: Foraging", "Marginal distribution"), 
+legend("topright", inset = c(0,0), legend = c("State 1: flying", "State 2: searching", "State 3: hovering/foraging", "Marginal distribution"), 
        pch = 20, col = colors)
 
 
