@@ -117,17 +117,20 @@ curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1
 colors <- c("#E69F00", "#56B4E9", "black")
 legend("topright", inset = c(0,0), legend= c("State 1: flying/searching", "State 2: hovering/foraging","Marginal distribution"), pch = 16, col=colors)
 
-#### 3-States HMM visualization ####
+#### 2-States HMM visualization for Report ####
 #par(mfrow=c(2,1))
-hist(data$log.tort, probability = TRUE, breaks = 2500, col = "light grey", xlab = "",
-     main = "",ylab="", xlim = c(0,0.1), ylim = c(0,120)) #main = "State-dependent distributions"
+#hist(data$log.tort, probability = TRUE, breaks = 2500, col = "light grey", xlab = "",
+    # main = "",ylab="", xlim = c(0,0.1), ylim = c(0,120)) #main = "State-dependent distributions"
+#Gespeichert als Format 10x22
+hist(data$log.tort, probability = TRUE, breaks = 3000, col = "light grey", xlab = "", ylab = "",
+     main = "", xlim = c(0,0.06), ylim = c(0,130)) #main = "State-dependent distributions"
 title(main = "", cex.main = 2 , cex.lab = 1.5, xlab="log(tort)",ylab="Density")
-curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1]),add=TRUE,col="#E69F00", lwd=4 , n=1001)
-curve(delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="#56B4E9", lwd=4 , n=1001)
+curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1]),add=TRUE,col="#E69F00", lwd=2 , n=1001)
+curve(delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="#56B4E9", lwd=2 , n=1001)
 curve(delta[1]*dgamma(x,shape=mu.tort[1]^2/sigma[1]^2,scale=sigma[1]^2/mu.tort[1])
-      +delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="black", lwd=4, lty=2 , n=1001)
+      +delta[2]*dgamma(x,shape=mu.tort[2]^2/sigma[2]^2,scale=sigma[2]^2/mu.tort[2]),add=TRUE,col="black", lwd=2, lty=2 , n=1001)
 colors <- c("#E69F00", "#56B4E9", "black")
-legend("topright", inset = c(0,0), legend= c("State 1: flying/searching", "State 2: hovering/foraging","Marginal distribution"), pch = 20, col=colors)
+legend("topright", inset = c(0,0), legend= c("State 1: Flying/Searching", "State 2: Hovering/Foraging","Marginal distribution"), pch = 16, col=colors)
 
 
 #### Global decoding ####
