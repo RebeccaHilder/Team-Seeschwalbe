@@ -431,21 +431,26 @@ resids <- residuals(d)
 #par(mfrow = c(2,2))
 
 # Histogram of pseudo-residuals
-hist(resids, freq=F)
+hist(resids, freq=F,main = "", xlab="",ylab="")
+title(main = "", cex.lab = 1.5, xlab="Resids",ylab="Density")
 m <- mean(resids)
 s <-  sd(resids)
 x <- resids
 curve(dnorm(x,m,s),add=TRUE,lwd=3, col="blue")
 
 # Normal Q-Q-Plot
-qqnorm(resids)
+qqnorm(resids,main = "", xlab="",ylab="")
+title(main = "", cex.lab = 1.5, xlab="Theoretical Quantiles",ylab="Sample Quantiles")
 qqline(resids)
 
 # Time series of pseudo-residuals
-plot(resids, main="Residuals")
+plot(resids,main = "", xlab="",ylab="")
+title(main = "", cex.lab = 1.5, xlab="Index",ylab="Resids")
+
 
 # ACF of the pseudo-residuals
-acf(resids)
+acf(resids,main = "", xlab="",ylab="")
+title(main = "", cex.lab = 1.5, xlab="Lag",ylab="ACF")
 
 #par(mfrow = c(1,1))
 
