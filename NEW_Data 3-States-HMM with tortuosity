@@ -358,26 +358,26 @@ which.min(bic)
 
 #### Gamma plots ####
 
-# Generate the 2-HMM with covariate "time-to-slick" first
+# Generate the 3-state HMM with covariate "time-to-slick" first
 
-# Create gamma for dummy varibale "slick"
-beta_slick <- cbind(mod_slick$estimate[6:7],mod_slick$estimate[8:9])
-eta <- beta_slick[,1]+beta_slick[,2]*0   # without tts
-Gamma_slick <- diag(2)
-Gamma_slick[!Gamma_slick] <- exp(eta) 
-Gamma_slick <- Gamma_slick/rowSums(Gamma_slick)
-Gamma_slick
-eta1 <- beta_slick[,1]+beta_slick[,2]*1  # with tts
-Gamma_slick1 <- diag(2)
-Gamma_slick1[!Gamma_slick1] <- exp(eta1) 
-Gamma_slick1 <- Gamma_slick1/rowSums(Gamma_slick1)
-Gamma_slick1
+# Create gamma for dummy varibale
+beta_slick3 <- cbind(mod_slick3$estimate[9:14],mod_slick3$estimate[15:20])
+eta3 <- beta_slick3[,1]+beta_slick3[,2]*0
+Gamma_slick3 <- diag(3)
+Gamma_slick3[!Gamma_slick3] <- exp(eta3) # assign values to the off-diagonal entries of the Gamma-matrix
+Gamma_slick3 <- Gamma_slick3/rowSums(Gamma_slick3)
+Gamma_slick3
+eta3.1 <- beta_slick3[,1]+beta_slick3[,2]*1
+Gamma_slick3.1 <- diag(3)
+Gamma_slick3.1[!Gamma_slick3.1] <- exp(eta3.1) # assign values to the off-diagonal entries of the Gamma-matrix
+Gamma_slick3.1 <- Gamma_slick3.1/rowSums(Gamma_slick3.1)
+Gamma_slick3.1
 
 # Stationary distribution
-delta<-solve(t(diag(2)-Gamma_slick+1),c(1,1))
-delta
-delta1 <- solve(t(diag(2)-Gamma_slick1+1),c(1,1))
-delta1
+delta3<-solve(t(diag(3)-Gamma_slick3+1),c(1,1,1))
+delta3
+delta3.1<-solve(t(diag(3)-Gamma_slick3.1+1),c(1,1,1))
+delta3.1
 
 # Assign betas
 beta0_tts <- mod_tts3$estimate[9:14]
