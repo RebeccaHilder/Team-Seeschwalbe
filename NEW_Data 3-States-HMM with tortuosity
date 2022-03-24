@@ -137,27 +137,27 @@ legend("topright", inset = c(0,0), legend = c("State 1: flying", "State 2: searc
 #### 3-States HMM visualization for Report ####
 #par(mfrow=c(2,1))
 #hist(data$log.tort, probability = TRUE, breaks = 2500, col = "light grey", xlab = "",
-     #main = "",ylab="", xlim = c(0,0.1), ylim = c(0,120)) #main = "State-dependent distributions"
+#main = "",ylab="", xlim = c(0,0.1), ylim = c(0,120)) #main = "State-dependent distributions"
 #Gespeichert als Format 10x22
 hist(data$log.tort, probability = TRUE, breaks = 3000, col = "light grey", xlab = "", ylab = "",
      main = "", xlim = c(0,0.06), ylim = c(0,130)) #main = "State-dependent distributions"
 title(main = "", cex.main = 2 , cex.lab = 1.3, xlab="log(tort)",ylab="Density")
 colors <- c("#E69F00", "#009E73", "#56B4E9", "black")
 curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2,
-                         scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colors[1], lwd = 2 , n=1001) 
+                         scale = sigma.tort3[1]^2/mu.tort3[1]), add = TRUE, col = colors[1], lwd = 8 , n=1001) 
 curve(delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
-                         scale = sigma.tort3[2]^2/mu.tort3[2]), add = TRUE, col = colors[2], lwd = 2 , n=1001)
+                         scale = sigma.tort3[2]^2/mu.tort3[2]), add = TRUE, col = colors[2], lwd = 8 , n=1001)
 curve(delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
-                         scale = sigma.tort3[3]^2/mu.tort3[3]), add = TRUE, col = colors[3], lwd = 2 , n=1001)
+                         scale = sigma.tort3[3]^2/mu.tort3[3]), add = TRUE, col = colors[3], lwd = 8 , n=1001)
 curve(delta3[1] * dgamma(x, shape = mu.tort3[1]^2/sigma.tort3[1]^2, 
                          scale = sigma.tort3[1]^2/mu.tort3[1])
       + delta3[2] * dgamma(x, shape = mu.tort3[2]^2/sigma.tort3[2]^2,
                            scale = sigma.tort3[2]^2/mu.tort3[2])
       + delta3[3] * dgamma(x, shape = mu.tort3[3]^2/sigma.tort3[3]^2,
                            scale = sigma.tort3[3]^2/mu.tort3[3]),
-      add = TRUE, col = colors[4], lwd = 2, lty = 2 , n=1001)
-legend("topright", inset = c(0,0), legend = c("State 1: Flying", "State 2: Searching", "State 3: Hovering/Foraging", "Marginal distribution"), 
-       pch = 16, col = colors)
+      add = TRUE, col = colors[4], lwd = 4, lty = 2 , n=1001)
+legend("topright", inset = c(-0.35,0.1), legend = c("State 1: Flying", "State 2: Searching", "State 3: Hovering/Foraging", "Marginal distribution"), 
+       lty = c(1,1,1,2), lwd = c(8,8,8,4), cex = 1.5, bty = "n", col = colors)
 
 
 #### Global decoding ####
